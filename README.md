@@ -9,7 +9,6 @@ My first API project created at Northcoders.
 1. Fork this repo
 
 2. Clone your forked repo by pasting this in your terminal:
-git clone https://github.com/YOUR_GIT_USERNAME/gamersofthenorth.git
 
 3. Install dependencies and devDependencies by running 'npm install' in your terminal. These are all already in the package.json file.
 
