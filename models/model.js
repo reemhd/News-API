@@ -24,3 +24,18 @@ exports.fetchArticlesFromDB = () => {
     return results.rows;
   });
 };
+
+
+exports.fetchArticlebyIdFromDB = (id) => {
+    const queryString = `
+    SELECT * FROM articles
+    WHERE article_id = $1
+    `
+    return db.query(queryString, [id])
+    .then(results => {
+        if (results.rows.length === 0) {
+            return Promise.reject({status: 404, message: 'Article not found'})
+        }
+        else return results.rows[0];
+    })
+}
