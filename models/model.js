@@ -27,9 +27,6 @@ exports.fetchArticlesFromDB = () => {
 
 
 exports.fetchArticlebyIdFromDB = (id) => {
-    if (!/\d/.test(id)) {
-      return Promise.reject({ status: 400, message: "Bad request" });
-    }
     const queryString = `
     SELECT * FROM articles
     WHERE article_id = $1

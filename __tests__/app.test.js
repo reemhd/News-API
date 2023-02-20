@@ -98,8 +98,8 @@ describe("core tasks", () => {
         .get("/api/articles/banana")
         .expect(400)
         .then(({ body }) => {
-          const error = body.message;
-          expect(error).toBe("Bad request");
+          const error = body.message
+          expect(error).toBe('Bad request')
         });
     });
   });
