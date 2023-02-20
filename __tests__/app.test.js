@@ -55,7 +55,9 @@ describe("core tasks", () => {
             //do I need to change the comment_count to a number?
             expect(article).toHaveProperty("comment_count", expect.any(String));
           });
-          expect(articlesArray).toBeSortedBy("created_at", { coerce: true });
+          expect(articlesArray).toBeSortedBy("created_at", {
+            descending: true,
+          });
         });
     });
   });
