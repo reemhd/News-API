@@ -85,22 +85,33 @@ describe("core tasks", () => {
     });
     // error handling tests
     it("GET: responds with 404 and when id not present", () => {
-        return request(app)
-        .get('/api/articles/99999')
+      return request(app)
+        .get("/api/articles/99999")
         .expect(404)
-        .then(({body}) => {
-            const error = body.message
-            expect(error).toBe('Article not found')
-        })
+        .then(({ body }) => {
+          const error = body.message;
+          expect(error).toBe("Article not found");
+        });
     });
     it("GET: responds with 400 and when id not number", () => {
       return request(app)
         .get("/api/articles/banana")
         .expect(400)
         .then(({ body }) => {
-          const error = body.message
-          expect(error).toBe('Bad request')
+          const error = body.message;
+          expect(error).toBe("Bad request");
         });
+    });
+
+    describe("task 6", () => {
+      it("GET: responds with 200 and array of comments for a given id", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            console.log(body)
+          });
+      });
     });
   });
 });
