@@ -24,3 +24,21 @@ exports.fetchArticlesFromDB = () => {
     return results.rows;
   });
 };
+
+
+exports.fetchArticlebyIdFromDB = (id) => {
+    if (!/\d/.test(id)) {
+      return Promise.reject({ status: 400, message: "Bad request" });
+    }
+    const queryString = `
+    SELECT * FROM articles
+    WHERE article_id = $1
+    `
+    return db.query(queryString, [id])
+    .then(results => {
+        if (results.rows.length === 0) {
+            return Promise.reject({status: 404, message: 'Article not found'})
+        }
+        else return results.rows[0];
+    })
+}

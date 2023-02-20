@@ -61,4 +61,46 @@ describe("core tasks", () => {
         });
     });
   });
+
+  describe("task 5", () => {
+    it("GET: responds with 200 and specific article with given id", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const articleObj = body.article;
+          const expectedArticle = {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          };
+          expect(articleObj).toEqual(expect.objectContaining(expectedArticle));
+        });
+    });
+    // error handling tests
+    it("GET: responds with 404 and when id not present", () => {
+        return request(app)
+        .get('/api/articles/99999')
+        .expect(404)
+        .then(({body}) => {
+            const error = body.message
+            expect(error).toBe('Article not found')
+        })
+    });
+    it("GET: responds with 400 and when id not number", () => {
+      return request(app)
+        .get("/api/articles/banana")
+        .expect(400)
+        .then(({ body }) => {
+          const error = body.message;
+          expect(error).toBe("Bad request");
+        });
+    });
+  });
 });
