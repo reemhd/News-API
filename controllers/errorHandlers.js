@@ -1,3 +1,6 @@
+exports.handle404NonExistentPath = (req, res, next) => {
+  res.status(404).send({message: 'Path not found'})
+}
 
 exports.handle400errors = (err, req, res, next) => {
     if (err.code === '22P02') {

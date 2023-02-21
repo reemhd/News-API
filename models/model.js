@@ -40,19 +40,6 @@ exports.fetchArticlebyIdFromDB = (id) => {
     })
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 exports.postCommentToDB = (article_id, comment) => {
   const {username, body} = comment
 
@@ -65,4 +52,17 @@ exports.postCommentToDB = (article_id, comment) => {
   .then(result => {
     return result.rows[0]
   })
+}
+
+exports.fetchCommentsByIdFromDB = (id) => {
+    const queryString = `
+    SELECT comment_id, votes, created_at, author, body, article_id
+    FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC;
+    `;
+    return db.query(queryString, [id])
+    .then(results => {
+      return results.rows;
+    })
 }
