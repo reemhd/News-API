@@ -3,6 +3,7 @@ const {
   fetchTopics,
   fetchArticles,
   fetchArticlebyId,
+  postComment,
 } = require("./controllers/controller");
 const {
   handle500errors,
@@ -19,6 +20,10 @@ app.get("/api/topics", fetchTopics);
 app.get("/api/articles", fetchArticles);
 
 app.get("/api/articles/:article_id", fetchArticlebyId);
+
+
+
+app.post("/api/articles/:article_id/comments", postComment);
 
 app.use(handle400errors);
 app.use(handleCustomErrors);

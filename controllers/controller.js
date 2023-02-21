@@ -2,6 +2,7 @@ const {
   fetchTopicsFromDB,
   fetchArticlesFromDB,
   fetchArticlebyIdFromDB,
+  postCommentToDB,
 } = require("../models/model");
 
 exports.fetchTopics = (req, res, next) => {
@@ -34,3 +35,33 @@ exports.fetchArticlebyId = (req, res, next) => {
       next(err);
     });
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.postComment = (req, res, next) => {
+  const { article_id } = req.params
+  const comment = req.body
+  postCommentToDB(article_id, comment)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}

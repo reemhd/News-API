@@ -104,3 +104,83 @@ describe("core tasks", () => {
     });
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+describe('POST method', () => {
+  describe("/api/articles/:article_id/comments", () => {
+    it("POST 201: responds with posted comment", () => {
+      return request(app)
+        .post("/api/articles/4/comments")
+        .send({
+          username: "butter_bridge",
+          body: "Anything",
+        })
+        .expect(201)
+        .then(({body}) => {
+          const comment = body.comment
+          const expectedComment = []
+        })
+    });
+  });
+})

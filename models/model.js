@@ -39,3 +39,30 @@ exports.fetchArticlebyIdFromDB = (id) => {
         else return results.rows[0];
     })
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.postCommentToDB = (article_id, comment) => {
+  const {username, body} = comment
+
+  const queryString = `INSERT INTO comments 
+  (body, author, article_id)
+  VALUES ($1, $2, $3)
+  RETURNING *`
+
+  return db.query(queryString, [body, username, article_id])
+  .then(result => {
+    return result.rows[0]
+  })
+}
