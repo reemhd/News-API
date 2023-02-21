@@ -3,6 +3,7 @@ const {
   fetchArticlesFromDB,
   fetchArticlebyIdFromDB,
   fetchCommentsByIdFromDB,
+  selectCommentsByIdFromDB
 } = require("../models/model");
 
 exports.fetchTopics = (req, res, next) => {
@@ -38,8 +39,10 @@ exports.fetchArticlebyId = (req, res, next) => {
 
 exports.fetchCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  fetchCommentsByIdFromDB(article_id)
-    .then((comments) => {
+  const promise1 = fetchCommentsByIdFromDB(article_id);
+  const promise2 = fetchArticlebyIdFromDB(article_id);
+  Promise.all([promise1, promise2])
+    .then(([comments]) => {
       res.status(200).send({ comments });
     })
     .catch((err) => {

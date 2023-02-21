@@ -14,9 +14,9 @@ describe("GET methods", () => {
       return request(app)
         .get("/api/randomtopics")
         .expect(404)
-        .then(({body}) => {
-          const error = body.message
-          expect(error).toBe('Path not found')
+        .then(({ body }) => {
+          const error = body.message;
+          expect(error).toBe("Path not found");
         });
     });
   });
@@ -135,15 +135,26 @@ describe("GET methods", () => {
           expect(commentsArray).toEqual(expected);
         });
     });
-    it("GET 404: responds with message of Bad Request when given a string instead of a number", () => {
+
+    it("GET 200: when id is in database but no comments for that id", () => {
+      return request(app)
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toHaveLength(0)
+        });
+    });
+
+    it("GET 404: responds with message of not found when valid id but not in database", () => {
       return request(app)
         .get("/api/articles/99999/comments")
         .expect(404)
         .then(({ body }) => {
           const error = body.message;
-          expect(error).toBe("Comment not found");
+          expect(error).toBe("Article not found");
         });
     });
+
     it("GET 400: when id not number", () => {
       return request(app)
         .get("/api/articles/banana/comments")

@@ -49,9 +49,6 @@ exports.fetchCommentsByIdFromDB = (id) => {
     `;
     return db.query(queryString, [id])
     .then(results => {
-      if (results.rows.length === 0) {
-        return Promise.reject({ status: 404, message: "Comment not found" });
-      }
-        else return results.rows;
+      return results.rows;
     })
 }
