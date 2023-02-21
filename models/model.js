@@ -40,7 +40,23 @@ exports.fetchArticlebyIdFromDB = (id) => {
     })
 }
 
-exports.postCommentToDB = (article_id, comment) => {
+exports.fetchCommentsByIdFromDB = (id) => {
+  const queryString = `
+  SELECT comment_id, votes, created_at, author, body, article_id
+  FROM comments
+  WHERE article_id = $1
+  ORDER BY created_at DESC;
+  `;
+  return db.query(queryString, [id])
+  .then(results => {
+    return results.rows;
+  })
+}
+
+exports.postCommentToDB = (article_id, comment) => {  
+  if (!comment.hasOwnProperty("username") || !comment.hasOwnProperty("body")) {
+    return Promise.reject({ status: 400, message: "Bad request" });
+  }
   const {username, body} = comment
 
   const queryString = `INSERT INTO comments 
@@ -52,17 +68,4 @@ exports.postCommentToDB = (article_id, comment) => {
   .then(result => {
     return result.rows[0]
   })
-}
-
-exports.fetchCommentsByIdFromDB = (id) => {
-    const queryString = `
-    SELECT comment_id, votes, created_at, author, body, article_id
-    FROM comments
-    WHERE article_id = $1
-    ORDER BY created_at DESC;
-    `;
-    return db.query(queryString, [id])
-    .then(results => {
-      return results.rows;
-    })
 }
