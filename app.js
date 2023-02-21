@@ -3,6 +3,7 @@ const {
   fetchTopics,
   fetchArticles,
   fetchArticlebyId,
+  postComment,
   fetchCommentsByArticleId,
 } = require("./controllers/controller");
 const {
@@ -21,10 +22,7 @@ app
   .get("/api/articles", fetchArticles)
   .get("/api/articles/:article_id", fetchArticlebyId)
   .get("/api/articles/:article_id/comments", fetchCommentsByArticleId)
-
-
-
-
+  .post("/api/articles/:article_id/comments", postComment);
   // .patch("/api/articles/:article_id", updateArticles);
 
 app.use(handle404NonExistentPath)

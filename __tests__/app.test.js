@@ -141,7 +141,7 @@ describe("GET methods", () => {
         .get("/api/articles/4/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body.comments).toHaveLength(0)
+          expect(body.comments).toHaveLength(0);
         });
     });
 
@@ -154,7 +154,7 @@ describe("GET methods", () => {
           expect(error).toBe("Article not found");
         });
     });
-    
+
     it("GET 400: when id not number", () => {
       return request(app)
         .get("/api/articles/banana/comments")
@@ -167,31 +167,57 @@ describe("GET methods", () => {
   });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+describe("POST method", () => {
+  describe("/api/articles/:article_id/comments", () => {
+    it("POST 201: responds with posted comment", () => {
+      return request(app)
+        .post("/api/articles/4/comments")
+        .send({
+          username: "butter_bridge",
+          body: "Anything",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const comment = body.comment;
+          const expectedComment = {
+            comment_id: 19,
+            body: "Anything",
+            article_id: 4,
+            author: "butter_bridge",
+            votes: 0,
+            created_at: expect.any(String),
+          };
+          expect(comment).toMatchObject(expectedComment);
+          // also checking the database to see if comment has been added
+          return request(app)
+          .get(`/api/articles/4/comments`)
+          .expect(200)
+          .then(({body}) => {
+            expect(body.comments).toHaveLength(1)
+          })
+        })
+    });
+    //error handling
+    it("400 status code if the request body is missing any required fields, such as username or body", () => {
+      return request(app)
+        .post("/api/articles/8/comments")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+    it("404 status code if article not found", () => {
+      return request(app)
+        .post("/api/articles/999/comments")
+        .send({ username: "butter_bridge", body: "Anything" })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe('Article not found')
+        });
+    });
+  });
+});
 
 //
 // describe('PATCH method', () => {

@@ -2,8 +2,8 @@ const {
   fetchTopicsFromDB,
   fetchArticlesFromDB,
   fetchArticlebyIdFromDB,
+  postCommentToDB,
   fetchCommentsByIdFromDB,
-  selectCommentsByIdFromDB
 } = require("../models/model");
 
 exports.fetchTopics = (req, res, next) => {
@@ -39,13 +39,26 @@ exports.fetchArticlebyId = (req, res, next) => {
 
 exports.fetchCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  const promise1 = fetchCommentsByIdFromDB(article_id);
-  const promise2 = fetchArticlebyIdFromDB(article_id);
-  Promise.all([promise1, promise2])
+  const commentPromise = fetchCommentsByIdFromDB(article_id);
+  const articleByIdPromise = fetchArticlebyIdFromDB(article_id);
+  Promise.all([commentPromise, articleByIdPromise])
     .then(([comments]) => {
       res.status(200).send({ comments });
     })
     .catch((err) => {
       next(err);
     });
+};
+
+exports.postComment = (req, res, next) => {
+  const { article_id } = req.params;
+  const comment = req.body;
+  
+  postCommentToDB(article_id, comment)
+  .then((comment) => {
+    res.status(201).send({ comment });
+  })
+  .catch(err => {
+    next(err)
+  })
 };
