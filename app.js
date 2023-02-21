@@ -25,7 +25,7 @@ app
 
 
 
-  .patch("/api/articles/:article_id", updateArticles);
+  // .patch("/api/articles/:article_id", updateArticles);
 
 app.use(handle404NonExistentPath)
 app.use(handle400errors);
