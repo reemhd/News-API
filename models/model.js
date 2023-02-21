@@ -76,3 +76,16 @@ exports.updateArticlesVotesInDB = (article_id, updatedVote) => {
       else return rows[0];
     });
 };
+
+
+exports.fetchUsersFromDB = () => {
+  return db
+    .query(
+      `
+    SELECT * FROM users;
+    `
+    )
+    .then((results) => {
+      return results.rows;
+    });
+}

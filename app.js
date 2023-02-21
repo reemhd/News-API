@@ -6,6 +6,7 @@ const {
   postComment,
   fetchCommentsByArticleId,
   updateArticlesVotes,
+  getAllUsers,
 } = require("./controllers/controller");
 const {
   handle500errors,
@@ -24,7 +25,8 @@ app
   .get("/api/articles/:article_id", fetchArticlebyId)
   .get("/api/articles/:article_id/comments", fetchCommentsByArticleId)
   .post("/api/articles/:article_id/comments", postComment)
-  .patch("/api/articles/:article_id", updateArticlesVotes);
+  .patch("/api/articles/:article_id", updateArticlesVotes)
+  .get("/api/users", getAllUsers);
 
 app.use(handle404NonExistentPath)
 app.use(handle400errors);

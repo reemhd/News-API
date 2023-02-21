@@ -236,7 +236,7 @@ describe("PATCH method", () => {
         .send({ inc_votes: 2 })
         .expect(200)
         .then(({ body }) => {
-          const updatedArticle = body.updated
+          const updatedArticle = body.updated;
           expect(updatedArticle.votes).toBe(102);
         });
     });
@@ -278,5 +278,22 @@ describe("PATCH method", () => {
           expect(body.message).toBe("Invalid request");
         });
     });
+  });
+});
+
+describe("GET users", () => {
+  it("GET 200: responds with array of all users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const userArray = body.users
+        expect(userArray).toHaveLength(4);
+        userArray.forEach((user) => {
+          expect(user).toHaveProperty("username", expect.any(String));
+          expect(user).toHaveProperty("name", expect.any(String));
+          expect(user).toHaveProperty("avatar_url", expect.any(String));
+        });
+      });
   });
 });
