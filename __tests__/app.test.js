@@ -190,12 +190,12 @@ describe("POST method", () => {
           expect(comment).toMatchObject(expectedComment);
           // also checking the database to see if comment has been added
           return request(app)
-          .get(`/api/articles/4/comments`)
-          .expect(200)
-          .then(({body}) => {
-            expect(body.comments).toHaveLength(1)
-          })
-        })
+            .get(`/api/articles/4/comments`)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toHaveLength(1);
+            });
+        });
     });
     //error handling
     it("400 status code if the request body is missing any required fields, such as username or body", () => {
@@ -213,18 +213,92 @@ describe("POST method", () => {
         .send({ username: "butter_bridge", body: "Anything" })
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe('Article not found')
+          expect(body.message).toBe("Article not found");
+        });
+    });
+    it("400 status code if article id not a number", () => {
+      return request(app)
+        .post("/api/articles/banana/comments")
+        .send({ username: "butter_bridge", body: "Anything" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
         });
     });
   });
 });
 
-//
-// describe('PATCH method', () => {
-//   it("/api/articles/:article_id", () => {
-//     return request(app)
-//     .patch("/api/articles/2")
-//     .expect(200)
-//   });
-// })
-//
+describe("PATCH method", () => {
+  describe("/api/articles/:article_id", () => {
+    it("200 response with an increase of votes in article by id", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 2 })
+        .expect(200)
+        .then(({ body }) => {
+          const updatedArticle = body.updated
+          const orginalArticle = {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          };
+          expect(updatedArticle.votes).toBe(102);
+        });
+    });
+    it("200 response with an decrease of votes in article by id", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: -2 })
+        .expect(200)
+        .then(({ body }) => {
+          const updatedArticle = body.updated;
+          const orginalArticle = {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          };
+          expect(updatedArticle.votes).toBe(98);
+        });
+    });
+    // error handling
+    it("404 status code if article not found", () => {
+      return request(app)
+        .patch("/api/articles/999")
+        .send({ inc_votes: -2 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article not found");
+        });
+    });
+    it("400 status code if article id not a number", () => {
+      return request(app)
+        .patch("/api/articles/banana")
+        .send({ inc_votes: 22 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+    it("400 status code if invalid object sent", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request");
+        });
+    });
+  });
+});

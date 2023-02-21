@@ -9,6 +9,9 @@ exports.handle400errors = (err, req, res, next) => {
     else if (err.code === '23503') {
       res.status(404).send({ message: "Article not found" });
     }
+    else if (err.code === '23502') {
+      res.status(400).send({message: 'Invalid request'})
+    }
     else next(err);
 }
 exports.handleCustomErrors = (err, req, res, next) => {
