@@ -166,3 +166,39 @@ describe("GET methods", () => {
     });
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+describe('PATCH method', () => {
+  it("/api/articles/:article_id", () => {
+    return request(app)
+    .patch("/api/articles/2")
+    .expect(200)
+  });
+})
+//

@@ -17,10 +17,15 @@ const app = express();
 app.use(express.json());
 
 app
-.get("/api/topics", fetchTopics)
-.get("/api/articles", fetchArticles)
-.get("/api/articles/:article_id", fetchArticlebyId)
-.get("/api/articles/:article_id/comments", fetchCommentsByArticleId)
+  .get("/api/topics", fetchTopics)
+  .get("/api/articles", fetchArticles)
+  .get("/api/articles/:article_id", fetchArticlebyId)
+  .get("/api/articles/:article_id/comments", fetchCommentsByArticleId)
+
+
+
+
+  .patch("/api/articles/:article_id", updateArticles);
 
 app.use(handle404NonExistentPath)
 app.use(handle400errors);
