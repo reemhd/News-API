@@ -9,6 +9,19 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("core tasks", () => {
+
+  describe("404 for valid but wrong path", () => {
+    it("GET: responds with 404 if requests on a wrong route", () => {
+      return request(app)
+        .get("/api/randomtopics")
+        .expect(404)
+        .then(({body}) => {
+          const error = body.message
+          expect(error).toBe('Path not found')
+        });
+    });
+  });
+
   describe("task 3", () => {
     it("GET: responds with 200 and all topics", () => {
       return request(app)
@@ -21,15 +34,6 @@ describe("core tasks", () => {
             expect(topic).toHaveProperty("slug", expect.any(String));
             expect(topic).toHaveProperty("description", expect.any(String));
           });
-        });
-    });
-    //error handling test for wrong route?
-    it("GET: responds with 404 if requests on a wrong route", () => {
-      return request(app)
-        .get("/api/randomtopics")
-        .expect(404)
-        .then((results) => {
-          expect(results.statusCode).toBe(404);
         });
     });
   });
@@ -103,7 +107,7 @@ describe("core tasks", () => {
         });
     });
   });
-  
+
   describe("task 6", () => {
     it("GET: responds with 200 and array of comments for a given id", () => {
       return request(app)
@@ -133,7 +137,6 @@ describe("core tasks", () => {
           expect(commentsArray).toEqual(expected);
         });
     });
-
     it("GET: responds with 404 status code of Bad Request when given a string instead of a number", () => {
       return request(app)
         .get("/api/articles/99999/comments")
@@ -143,7 +146,6 @@ describe("core tasks", () => {
           expect(error).toBe("Comment not found");
         });
     });
-
     it("GET: responds with 400 and when id not number", () => {
       return request(app)
         .get("/api/articles/banana/comments")
