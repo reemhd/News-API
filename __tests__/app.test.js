@@ -102,16 +102,56 @@ describe("core tasks", () => {
           expect(error).toBe("Bad request");
         });
     });
+  });
+  
+  describe("task 6", () => {
+    it("GET: responds with 200 and array of comments for a given id", () => {
+      return request(app)
+        .get("/api/articles/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const commentsArray = body.comments;
+          const expected = [
+            {
+              comment_id: 11,
+              votes: 0,
+              created_at: "2020-09-19T23:10:00.000Z",
+              author: "icellusedkars",
+              body: "Ambidextrous marsupial",
+              article_id: 3,
+            },
+            {
+              comment_id: 10,
+              votes: 0,
+              created_at: "2020-06-20T07:24:00.000Z",
+              author: "icellusedkars",
+              body: "git push origin master",
+              article_id: 3,
+            },
+          ];
+          expect(commentsArray).toHaveLength(2);
+          expect(commentsArray).toEqual(expected);
+        });
+    });
 
-    describe("task 6", () => {
-      it("GET: responds with 200 and array of comments for a given id", () => {
-        return request(app)
-          .get("/api/articles/1/comments")
-          .expect(200)
-          .then(({ body }) => {
-            console.log(body)
-          });
-      });
+    it("GET: responds with 404 status code of Bad Request when given a string instead of a number", () => {
+      return request(app)
+        .get("/api/articles/99999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          const error = body.message;
+          expect(error).toBe("Comment not found");
+        });
+    });
+
+    it("GET: responds with 400 and when id not number", () => {
+      return request(app)
+        .get("/api/articles/banana/comments")
+        .expect(400)
+        .then(({ body }) => {
+          const error = body.message;
+          expect(error).toBe("Bad request");
+        });
     });
   });
 });
