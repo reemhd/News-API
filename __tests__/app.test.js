@@ -154,7 +154,7 @@ describe("GET methods", () => {
           expect(error).toBe("Article not found");
         });
     });
-
+    
     it("GET 400: when id not number", () => {
       return request(app)
         .get("/api/articles/banana/comments")
