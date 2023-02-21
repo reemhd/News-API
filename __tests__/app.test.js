@@ -8,10 +8,9 @@ beforeEach(() => seed(testData));
 
 afterAll(() => db.end());
 
-describe("core tasks", () => {
-
+describe("GET methods", () => {
   describe("404 for valid but wrong path", () => {
-    it("GET: responds with 404 if requests on a wrong route", () => {
+    it("GET 404 if requests on a wrong route", () => {
       return request(app)
         .get("/api/randomtopics")
         .expect(404)
@@ -22,8 +21,8 @@ describe("core tasks", () => {
     });
   });
 
-  describe("task 3", () => {
-    it("GET: responds with 200 and all topics", () => {
+  describe("/api/topics", () => {
+    it("GET 200: responds with all topics", () => {
       return request(app)
         .get("/api/topics")
         .expect(200)
@@ -38,8 +37,8 @@ describe("core tasks", () => {
     });
   });
 
-  describe("task 4", () => {
-    it("GET: responds with 200 and all articles", () => {
+  describe("/api/articles", () => {
+    it("GET 200: responds with all articles", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -56,7 +55,6 @@ describe("core tasks", () => {
               "article_img_url",
               expect.any(String)
             );
-            //do I need to change the comment_count to a number?
             expect(article).toHaveProperty("comment_count", expect.any(String));
           });
           expect(articlesArray).toBeSortedBy("created_at", {
@@ -66,8 +64,8 @@ describe("core tasks", () => {
     });
   });
 
-  describe("task 5", () => {
-    it("GET: responds with 200 and specific article with given id", () => {
+  describe("/api/articles/:article_id", () => {
+    it("GET 200: responds with specific article with given id", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
@@ -88,7 +86,7 @@ describe("core tasks", () => {
         });
     });
     // error handling tests
-    it("GET: responds with 404 and when id not present", () => {
+    it("GET 404: when id not in database", () => {
       return request(app)
         .get("/api/articles/99999")
         .expect(404)
@@ -97,7 +95,7 @@ describe("core tasks", () => {
           expect(error).toBe("Article not found");
         });
     });
-    it("GET: responds with 400 and when id not number", () => {
+    it("GET 400: when id not number", () => {
       return request(app)
         .get("/api/articles/banana")
         .expect(400)
@@ -108,8 +106,8 @@ describe("core tasks", () => {
     });
   });
 
-  describe("task 6", () => {
-    it("GET: responds with 200 and array of comments for a given id", () => {
+  describe("/api/articles/3/comments", () => {
+    it("GET 200: responds with of comments for a given article_id", () => {
       return request(app)
         .get("/api/articles/3/comments")
         .expect(200)
@@ -137,7 +135,7 @@ describe("core tasks", () => {
           expect(commentsArray).toEqual(expected);
         });
     });
-    it("GET: responds with 404 status code of Bad Request when given a string instead of a number", () => {
+    it("GET 404: responds with message of Bad Request when given a string instead of a number", () => {
       return request(app)
         .get("/api/articles/99999/comments")
         .expect(404)
@@ -146,7 +144,7 @@ describe("core tasks", () => {
           expect(error).toBe("Comment not found");
         });
     });
-    it("GET: responds with 400 and when id not number", () => {
+    it("GET 400: when id not number", () => {
       return request(app)
         .get("/api/articles/banana/comments")
         .expect(400)
