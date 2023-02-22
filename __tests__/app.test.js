@@ -8,7 +8,8 @@ beforeEach(() => seed(testData));
 
 afterAll(() => db.end());
 
-describe("GET methods", () => {
+describe("Articles", () => {
+// wrong path
   describe("404 for valid but wrong path", () => {
     it("GET 404 if requests on a wrong route", () => {
       return request(app)
@@ -21,6 +22,7 @@ describe("GET methods", () => {
     });
   });
 
+// topics
   describe("/api/topics", () => {
     it("GET 200: responds with all topics", () => {
       return request(app)
@@ -165,123 +167,124 @@ describe("GET methods", () => {
         });
     });
   });
-});
-
-describe("POST method", () => {
-  describe("/api/articles/:article_id/comments", () => {
-    it("POST 201: responds with posted comment", () => {
-      return request(app)
-        .post("/api/articles/4/comments")
-        .send({
-          username: "butter_bridge",
-          body: "Anything",
-        })
-        .expect(201)
-        .then(({ body }) => {
-          const comment = body.comment;
-          const expectedComment = {
-            comment_id: 19,
+  // post
+  describe("POST method for articles", () => {
+    describe("/api/articles/:article_id/comments", () => {
+      it("POST 201: responds with posted comment", () => {
+        return request(app)
+          .post("/api/articles/4/comments")
+          .send({
+            username: "butter_bridge",
             body: "Anything",
-            article_id: 4,
-            author: "butter_bridge",
-            votes: 0,
-            created_at: expect.any(String),
-          };
-          expect(comment).toMatchObject(expectedComment);
-          // also checking the database to see if comment has been added
-          return request(app)
-            .get(`/api/articles/4/comments`)
-            .expect(200)
-            .then(({ body }) => {
-              expect(body.comments).toHaveLength(1);
-            });
-        });
+          })
+          .expect(201)
+          .then(({ body }) => {
+            const comment = body.comment;
+            const expectedComment = {
+              comment_id: 19,
+              body: "Anything",
+              article_id: 4,
+              author: "butter_bridge",
+              votes: 0,
+              created_at: expect.any(String),
+            };
+            expect(comment).toMatchObject(expectedComment);
+            // also checking the database to see if comment has been added
+            return request(app)
+              .get(`/api/articles/4/comments`)
+              .expect(200)
+              .then(({ body }) => {
+                expect(body.comments).toHaveLength(1);
+              });
+          });
+      });
+      //error handling for post comments
+      it("400 status code if the request body is missing any required fields, such as username or body", () => {
+        return request(app)
+          .post("/api/articles/8/comments")
+          .send({})
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe("Bad request");
+          });
+      });
+      it("404 status code if article not found", () => {
+        return request(app)
+          .post("/api/articles/999/comments")
+          .send({ username: "butter_bridge", body: "Anything" })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.message).toBe("Article not found");
+          });
+      });
+      it("400 status code if article id not a number", () => {
+        return request(app)
+          .post("/api/articles/banana/comments")
+          .send({ username: "butter_bridge", body: "Anything" })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe("Bad request");
+          });
+      });
     });
-    //error handling
-    it("400 status code if the request body is missing any required fields, such as username or body", () => {
-      return request(app)
-        .post("/api/articles/8/comments")
-        .send({})
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).toBe("Bad request");
-        });
-    });
-    it("404 status code if article not found", () => {
-      return request(app)
-        .post("/api/articles/999/comments")
-        .send({ username: "butter_bridge", body: "Anything" })
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.message).toBe("Article not found");
-        });
-    });
-    it("400 status code if article id not a number", () => {
-      return request(app)
-        .post("/api/articles/banana/comments")
-        .send({ username: "butter_bridge", body: "Anything" })
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).toBe("Bad request");
-        });
+  });
+  
+  describe("PATCH method for articles", () => {
+    describe("/api/articles/:article_id", () => {
+      it("200 response with an increase of votes in article by id", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 2 })
+          .expect(200)
+          .then(({ body }) => {
+            const updatedArticle = body.updated;
+            expect(updatedArticle.votes).toBe(102);
+          });
+      });
+      it("200 response with a decrease of votes in article by id", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: -2 })
+          .expect(200)
+          .then(({ body }) => {
+            const updatedArticle = body.updated;
+            expect(updatedArticle.votes).toBe(98);
+          });
+      });
+      // error handling for patch articles
+      it("404 status code if article not found", () => {
+        return request(app)
+          .patch("/api/articles/999")
+          .send({ inc_votes: -2 })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.message).toBe("Article not found");
+          });
+      });
+      it("400 status code if article id not a number", () => {
+        return request(app)
+          .patch("/api/articles/banana")
+          .send({ inc_votes: 22 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe("Bad request");
+          });
+      });
+      it("400 status code if invalid object sent", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({})
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe("Invalid request");
+          });
+      });
     });
   });
 });
 
-describe("PATCH method", () => {
-  describe("/api/articles/:article_id", () => {
-    it("200 response with an increase of votes in article by id", () => {
-      return request(app)
-        .patch("/api/articles/1")
-        .send({ inc_votes: 2 })
-        .expect(200)
-        .then(({ body }) => {
-          const updatedArticle = body.updated;
-          expect(updatedArticle.votes).toBe(102);
-        });
-    });
-    it("200 response with a decrease of votes in article by id", () => {
-      return request(app)
-        .patch("/api/articles/1")
-        .send({ inc_votes: -2 })
-        .expect(200)
-        .then(({ body }) => {
-          const updatedArticle = body.updated;
-          expect(updatedArticle.votes).toBe(98);
-        });
-    });
-    // error handling
-    it("404 status code if article not found", () => {
-      return request(app)
-        .patch("/api/articles/999")
-        .send({ inc_votes: -2 })
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.message).toBe("Article not found");
-        });
-    });
-    it("400 status code if article id not a number", () => {
-      return request(app)
-        .patch("/api/articles/banana")
-        .send({ inc_votes: 22 })
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).toBe("Bad request");
-        });
-    });
-    it("400 status code if invalid object sent", () => {
-      return request(app)
-        .patch("/api/articles/1")
-        .send({})
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.message).toBe("Invalid request");
-        });
-    });
-  });
-});
-
-describe("GET users", () => {
+// get users
+describe("Users", () => {
   it("GET 200: responds with array of all users", () => {
     return request(app)
       .get("/api/users")
