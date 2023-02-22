@@ -283,7 +283,7 @@ describe("Articles", () => {
   });
 
   describe("Get articles by queries", () => {
-    it("GET 200: returns articles filtered by topic value, if no query respond with all articles", () => {
+    it("GET 200: returns articles filtered by topic value", () => {
       return request(app)
         .get("/api/articles?topic=cats")
         .expect(200)
@@ -350,7 +350,6 @@ describe("Articles", () => {
         .get("/api/articles?topic=monkeys")
         .expect(404)
         .then(({ body }) => {
-          console.log(body)
           expect(body.message).toBe("Article not found");
         });
     });

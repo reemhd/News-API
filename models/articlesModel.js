@@ -1,20 +1,27 @@
 const db = require("../db/connection");
 
-exports.fetchArticlesFromDB = (topic, sortBy, order) => {
+function topicExists() {
+  return db.query(`SELECT slug FROM topics`).then((result) => {
+    const topics = result.rows.map((topic) => topic.slug);
+    return topics;
+  });
+};
+
+exports.fetchArticlesFromDB = async (topic, sortBy, order) => {
   const queries = [];
-  const validTopics = ['cats', 'paper', 'mitch']
+  const validTopics = await topicExists();
   const validSorting = [
-    'author',
-    'title',
-    'topic',
-    'comment_count',
-    'votes',
-    'created_at'
-  ]
-  const validOrder = ['asc', 'desc']
+    "author",
+    "title",
+    "topic",
+    "comment_count",
+    "votes",
+    "created_at",
+  ];
+  const validOrder = ["asc", "desc"];
 
   if (!validSorting.includes(sortBy) || !validOrder.includes(order)) {
-    return Promise.reject({status: 400, message: 'Bad request'})
+    return Promise.reject({ status: 400, message: "Bad request" });
   }
 
   let queryString = `
@@ -31,9 +38,8 @@ exports.fetchArticlesFromDB = (topic, sortBy, order) => {
 
   return db.query(queryString, queries).then((results) => {
     if (results.rowCount === 0 && !validTopics.includes(topic)) {
-      return Promise.reject({status: 404, message: 'Article not found'})
-    }
-    else return results.rows;
+      return Promise.reject({ status: 404, message: "Article not found" });
+    } else return results.rows;
   });
 };
 
@@ -84,9 +90,6 @@ exports.updateArticlesVotesInDB = (article_id, updatedVote) => {
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, message: "Article not found" });
-      }
-      else return rows[0];
+      } else return rows[0];
     });
 };
-
-
