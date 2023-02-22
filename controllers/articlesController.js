@@ -8,7 +8,11 @@ const {
 } = require("../models/articlesModel");
 
 exports.fetchArticles = (req, res, next) => {
-  fetchArticlesFromDB()
+  const { topic } = req.query;
+  const sortBy = req.query.sort_by || 'created_at'
+  const order = req.query.order || 'desc'
+ 
+  fetchArticlesFromDB(topic, sortBy, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })
@@ -66,4 +70,3 @@ exports.updateArticlesVotes = (req, res, next) => {
       next(err);
     });
 };
-

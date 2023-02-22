@@ -9,7 +9,7 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("Articles", () => {
-// wrong path
+  // wrong path
   describe("404 for valid but wrong path", () => {
     it("GET 404 if requests on a wrong route", () => {
       return request(app)
@@ -22,7 +22,7 @@ describe("Articles", () => {
     });
   });
 
-// topics
+  // topics
   describe("/api/topics", () => {
     it("GET 200: responds with all topics", () => {
       return request(app)
@@ -228,7 +228,7 @@ describe("Articles", () => {
       });
     });
   });
-  
+
   describe("PATCH method for articles", () => {
     describe("/api/articles/:article_id", () => {
       it("200 response with an increase of votes in article by id", () => {
@@ -281,6 +281,71 @@ describe("Articles", () => {
       });
     });
   });
+
+  describe("Get articles by queries", () => {
+    it("GET 200: returns articles filtered by topic value, if no query respond with all articles", () => {
+      return request(app)
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          // only one in test db
+          expect(body.articles).toHaveLength(1);
+        });
+    });
+    it("GET 200: returns articles filtered by topic value", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toHaveLength(11);
+        });
+    });
+    // sorting by author, title, topic, comment count, votes, created_at
+    it("GET 200: returns articles sorted by valid sorting options: author ASC", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toBeSortedBy("author", { ascending: true });
+        });
+    });
+    it("GET 200: returns articles sorted by valid sorting options: Mitch comment_count desc", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=comment_count")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toBeSortedBy("comment_count", { coerce: true, descending: true });
+        });
+    });
+    // tests for errors sort_by and order
+    it("GET 400: if invalid sort_by ", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author_age")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe('Bad request')
+        });
+    });
+    it("GET 400: if invalid order ", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=blackhole")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+    it("GET 404: if article do not exist", () => {
+      return request(app)
+        .get("/api/articles?topic=monkeys")
+        .expect(404)
+        .then(({ body }) => {
+          console.log(body)
+          expect(body.message).toBe("Article not found");
+        });
+    });
+  });
 });
 
 // get users
@@ -290,7 +355,7 @@ describe("Users", () => {
       .get("/api/users")
       .expect(200)
       .then(({ body }) => {
-        const userArray = body.users
+        const userArray = body.users;
         expect(userArray).toHaveLength(4);
         userArray.forEach((user) => {
           expect(user).toHaveProperty("username", expect.any(String));

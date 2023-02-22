@@ -1,15 +1,38 @@
 const db = require("../db/connection");
 
-exports.fetchArticlesFromDB = () => {
+exports.fetchArticlesFromDB = (topic, sortBy, order) => {
+  const queries = [];
+  const validSorting = [
+    'author',
+    'title',
+    'topic',
+    'comment_count',
+    'votes',
+    'created_at'
+  ]
+  const validOrder = ['asc', 'desc']
+
+  if (!validSorting.includes(sortBy) || !validOrder.includes(order)) {
+    return Promise.reject({status: 400, message: 'Bad request'})
+  }
+
   let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
-  GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC;`;
+  `;
 
-  return db.query(queryString).then((results) => {
-    return results.rows;
+  if (topic) {
+    queryString += `WHERE articles.topic = $1`;
+    queries.push(topic);
+  }
+  queryString += ` GROUP BY articles.article_id ORDER BY ${sortBy} ${order}`;
+
+  return db.query(queryString, queries).then((results) => {
+    if (results.rowCount === 0) {
+      return Promise.reject({status: 404, message: 'Article not found'})
+    }
+    else return results.rows;
   });
 };
 
