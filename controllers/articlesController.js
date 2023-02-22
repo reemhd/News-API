@@ -5,17 +5,7 @@ const {
   postCommentToDB,
   fetchCommentsByIdFromDB,
   updateArticlesVotesInDB,
-} = require("../models/model");
-
-exports.fetchTopics = (req, res, next) => {
-  fetchTopicsFromDB()
-    .then((topics) => {
-      res.status(200).send({ topics });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+} = require("../models/articlesModel");
 
 exports.fetchArticles = (req, res, next) => {
   fetchArticlesFromDB()
@@ -54,14 +44,14 @@ exports.fetchCommentsByArticleId = (req, res, next) => {
 exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
   const comment = req.body;
-  
+
   postCommentToDB(article_id, comment)
-  .then((comment) => {
-    res.status(201).send({ comment });
-  })
-  .catch(err => {
-    next(err)
-  })
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.updateArticlesVotes = (req, res, next) => {
@@ -76,3 +66,4 @@ exports.updateArticlesVotes = (req, res, next) => {
       next(err);
     });
 };
+

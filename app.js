@@ -1,12 +1,13 @@
 const express = require("express");
+const { fetchTopics } = require("./controllers/topicsController");
 const {
-  fetchTopics,
   fetchArticles,
   fetchArticlebyId,
   postComment,
   fetchCommentsByArticleId,
   updateArticlesVotes,
-} = require("./controllers/controller");
+} = require("./controllers/articlesController");
+const { getAllUsers } = require("./controllers/userController");
 const {
   handle500errors,
   handleCustomErrors,
@@ -24,9 +25,10 @@ app
   .get("/api/articles/:article_id", fetchArticlebyId)
   .get("/api/articles/:article_id/comments", fetchCommentsByArticleId)
   .post("/api/articles/:article_id/comments", postComment)
-  .patch("/api/articles/:article_id", updateArticlesVotes);
+  .patch("/api/articles/:article_id", updateArticlesVotes)
+  .get("/api/users", getAllUsers);
 
-app.use(handle404NonExistentPath)
+app.use(handle404NonExistentPath);
 app.use(handle400errors);
 app.use(handleCustomErrors);
 app.use(handle500errors);
