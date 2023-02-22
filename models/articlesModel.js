@@ -2,6 +2,7 @@ const db = require("../db/connection");
 
 exports.fetchArticlesFromDB = (topic, sortBy, order) => {
   const queries = [];
+  const validTopics = ['cats', 'paper', 'mitch']
   const validSorting = [
     'author',
     'title',
@@ -29,7 +30,7 @@ exports.fetchArticlesFromDB = (topic, sortBy, order) => {
   queryString += ` GROUP BY articles.article_id ORDER BY ${sortBy} ${order}`;
 
   return db.query(queryString, queries).then((results) => {
-    if (results.rowCount === 0) {
+    if (results.rowCount === 0 && !validTopics.includes(topic)) {
       return Promise.reject({status: 404, message: 'Article not found'})
     }
     else return results.rows;

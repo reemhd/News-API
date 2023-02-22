@@ -319,6 +319,15 @@ describe("Articles", () => {
           expect(articles).toBeSortedBy("comment_count", { coerce: true, descending: true });
         });
     });
+    it("GET 200: valid topic (paper) but no articles", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toHaveLength(0)
+        });
+    });
     // tests for errors sort_by and order
     it("GET 400: if invalid sort_by ", () => {
       return request(app)
