@@ -74,15 +74,15 @@ describe("Articles", () => {
         .then(({ body }) => {
           const articleObj = body.article;
           const expectedArticle = {
-            article_id: 1,
-            title: "Living in the shadow of a great man",
-            topic: "mitch",
             author: "butter_bridge",
-            body: "I find this existence challenging",
+            title: "Living in the shadow of a great man",
+            article_id: 1,
+            topic: "mitch",
             created_at: "2020-07-09T20:11:00.000Z",
             votes: 100,
             article_img_url:
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "11",
           };
           expect(articleObj).toEqual(expect.objectContaining(expectedArticle));
         });
@@ -137,7 +137,6 @@ describe("Articles", () => {
           expect(commentsArray).toEqual(expected);
         });
     });
-
     it("GET 200: when id is in database but no comments for that id", () => {
       return request(app)
         .get("/api/articles/4/comments")
@@ -146,7 +145,6 @@ describe("Articles", () => {
           expect(body.comments).toHaveLength(0);
         });
     });
-
     it("GET 404: responds with message of not found when valid id but not in database", () => {
       return request(app)
         .get("/api/articles/99999/comments")
@@ -156,7 +154,6 @@ describe("Articles", () => {
           expect(error).toBe("Article not found");
         });
     });
-
     it("GET 400: when id not number", () => {
       return request(app)
         .get("/api/articles/banana/comments")
@@ -316,7 +313,10 @@ describe("Articles", () => {
         .expect(200)
         .then(({ body }) => {
           const articles = body.articles;
-          expect(articles).toBeSortedBy("comment_count", { coerce: true, descending: true });
+          expect(articles).toBeSortedBy("comment_count", {
+            coerce: true,
+            descending: true,
+          });
         });
     });
     it("GET 200: valid topic (paper) but no articles", () => {
@@ -325,7 +325,7 @@ describe("Articles", () => {
         .expect(200)
         .then(({ body }) => {
           const articles = body.articles;
-          expect(articles).toHaveLength(0)
+          expect(articles).toHaveLength(0);
         });
     });
     // tests for errors sort_by and order
@@ -334,7 +334,7 @@ describe("Articles", () => {
         .get("/api/articles?sort_by=author_age")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe('Bad request')
+          expect(body.message).toBe("Bad request");
         });
     });
     it("GET 400: if invalid order ", () => {
