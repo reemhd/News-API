@@ -79,7 +79,7 @@ exports.deleteCommentById = (req, res, next) => {
 
   deleteCommentByIdInDB(comment_id)
     .then((deleted) => {
-      res.status(204).send({ deleted });
+      res.status(204).send();
     })
     .catch((err) => {
       next(err);
