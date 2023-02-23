@@ -14,12 +14,14 @@ const {
   handle400errors,
   handle404NonExistentPath,
 } = require("./controllers/errorHandlers");
+const { fetchAllEndPoints } = require('./controllers/endPointsController')
 
 const app = express();
 
 app.use(express.json());
 
 app
+  .get('/api', fetchAllEndPoints)
   .get("/api/topics", fetchTopics)
   .get("/api/articles", fetchArticles)
   .get("/api/articles/:article_id", fetchArticlebyId)
