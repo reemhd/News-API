@@ -6,6 +6,7 @@ const {
   postComment,
   fetchCommentsByArticleId,
   updateArticlesVotes,
+  deleteCommentById,
 } = require("./controllers/articlesController");
 const { getAllUsers } = require("./controllers/userController");
 const {
@@ -26,7 +27,8 @@ app
   .get("/api/articles/:article_id/comments", fetchCommentsByArticleId)
   .post("/api/articles/:article_id/comments", postComment)
   .patch("/api/articles/:article_id", updateArticlesVotes)
-  .get("/api/users", getAllUsers);
+  .get("/api/users", getAllUsers)
+  .delete("/api/comments/:comment_id", deleteCommentById);
 
 app.use(handle404NonExistentPath);
 app.use(handle400errors);
