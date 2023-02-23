@@ -98,5 +98,18 @@
     "description": "delete the given comment by comment_id",
     "queries": ["comment_id"],
     "exampleResponse": { "statusCode": 204 }
+  },
+  "GET /api/users": {
+    "description": "serves an array of users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
   }
 }
