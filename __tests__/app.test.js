@@ -379,6 +379,59 @@ describe("Articles", () => {
     });
   });
 
+  describe("PATCH comments", () => {
+    it("200 response with updated comment with incremented vote when user provides a req body with newVote", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: 2 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.updated).toEqual({
+            comment_id: 2,
+            body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+            article_id: 1,
+            author: "butter_bridge",
+            votes: 16,
+            created_at: "2020-10-31T03:03:00.000Z",
+          });
+        });
+    });
+    it("200 response with updated comment with decremented vote when user provides a req body with newVote", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: -2 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.updated).toEqual({
+            comment_id: 2,
+            body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+            article_id: 1,
+            author: "butter_bridge",
+            votes: 12,
+            created_at: "2020-10-31T03:03:00.000Z",
+          });
+        });
+    });
+    it("404 response if comment not found", () => {
+      return request(app)
+        .patch("/api/comments/999")
+        .send({ inc_votes: 2 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe('Comment not found')
+        });
+    });
+    it("400 response if comment id not valid", () => {
+      return request(app)
+        .patch("/api/comments/banana")
+        .send({ inc_votes: 2 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+  });
+
   describe("All endpoints", () => {
     it("GET 200: all endpoints on /api", () => {
       return request(app)
@@ -431,7 +484,7 @@ describe("Users", () => {
       .get("/api/users/monkey")
       .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe('User not found')
+        expect(body.message).toBe("User not found");
       });
   });
 });
