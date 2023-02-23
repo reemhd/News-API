@@ -3,7 +3,7 @@ const app = require("../app");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
 const db = require("../db/connection");
-const endpointsJson = require('../endpoints.json')
+const endpointsJson = require("../endpoints.json");
 
 beforeEach(() => seed(testData));
 
@@ -355,7 +355,7 @@ describe("Articles", () => {
         });
     });
   });
-  
+
   describe("DELETE comment", () => {
     it("204 response status code and deleted comment by comment_id", () => {
       return request(app)
@@ -394,9 +394,10 @@ describe("Articles", () => {
         .get("/api")
         .expect(200)
         .then(({ body }) => {
-          const endpoints = body.endpoints
-          expect(endpoints).toEqual(endpointsJson)
-          });
+          const endpoints = body.endpoints;
+          expect(endpoints).toEqual(endpointsJson);
+        });
+    });
   });
 });
 
