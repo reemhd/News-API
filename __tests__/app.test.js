@@ -10,7 +10,6 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("Articles", () => {
-  // wrong path
   describe("404 for valid but wrong path", () => {
     it("GET 404 if requests on a wrong route", () => {
       return request(app)
@@ -23,7 +22,6 @@ describe("Articles", () => {
     });
   });
 
-  // topics
   describe("/api/topics", () => {
     it("GET 200: responds with all topics", () => {
       return request(app)
@@ -88,7 +86,6 @@ describe("Articles", () => {
           expect(articleObj).toEqual(expect.objectContaining(expectedArticle));
         });
     });
-    // error handling tests
     it("GET 404: when id not in database", () => {
       return request(app)
         .get("/api/articles/99999")
@@ -165,7 +162,7 @@ describe("Articles", () => {
         });
     });
   });
-  // post
+
   describe("POST method for articles", () => {
     describe("/api/articles/:article_id/comments", () => {
       it("POST 201: responds with posted comment", () => {
@@ -187,7 +184,6 @@ describe("Articles", () => {
               created_at: expect.any(String),
             };
             expect(comment).toMatchObject(expectedComment);
-            // also checking the database to see if comment has been added
             return request(app)
               .get(`/api/articles/4/comments`)
               .expect(200)
@@ -196,7 +192,6 @@ describe("Articles", () => {
               });
           });
       });
-      //error handling for post comments
       it("400 status code if the request body is missing any required fields, such as username or body", () => {
         return request(app)
           .post("/api/articles/8/comments")
@@ -249,7 +244,6 @@ describe("Articles", () => {
             expect(updatedArticle.votes).toBe(98);
           });
       });
-      // error handling for patch articles
       it("404 status code if article not found", () => {
         return request(app)
           .patch("/api/articles/999")
@@ -286,7 +280,6 @@ describe("Articles", () => {
         .get("/api/articles?topic=cats")
         .expect(200)
         .then(({ body }) => {
-          // only one in test db
           expect(body.articles).toHaveLength(1);
         });
     });
@@ -329,7 +322,6 @@ describe("Articles", () => {
           expect(articles).toHaveLength(0);
         });
     });
-    // tests for errors sort_by and order
     it("GET 400: if invalid sort_by ", () => {
       return request(app)
         .get("/api/articles?sort_by=author_age")
@@ -369,7 +361,6 @@ describe("Articles", () => {
             });
         });
     });
-    //error tests
     it("404 response status code when comment_id non-existent", () => {
       return request(app)
         .delete("/api/comments/999")
@@ -401,20 +392,46 @@ describe("Articles", () => {
   });
 });
 
-// get users
 describe("Users", () => {
-  it("GET 200: responds with array of all users", () => {
-    return request(app)
-      .get("/api/users")
-      .expect(200)
-      .then(({ body }) => {
-        const userArray = body.users;
-        expect(userArray).toHaveLength(4);
-        userArray.forEach((user) => {
-          expect(user).toHaveProperty("username", expect.any(String));
-          expect(user).toHaveProperty("name", expect.any(String));
-          expect(user).toHaveProperty("avatar_url", expect.any(String));
+  describe("all users", () => {
+    it("GET 200: responds with array of all users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const userArray = body.users;
+          expect(userArray).toHaveLength(4);
+          userArray.forEach((user) => {
+            expect(user).toHaveProperty("username", expect.any(String));
+            expect(user).toHaveProperty("name", expect.any(String));
+            expect(user).toHaveProperty("avatar_url", expect.any(String));
+          });
         });
+    });
+  });
+
+  describe("get user by username", () => {
+    it("GET 200: responds with specific user when username provided", () => {
+      return request(app)
+        .get("/api/users/lurker")
+        .expect(200)
+        .then(({ body }) => {
+          const user = body.user;
+          expect(user).toEqual({
+            username: "lurker",
+            name: "do_nothing",
+            avatar_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          });
+        });
+    });
+  });
+  it("GET 404: responds with 'Not found' if username does not exist", () => {
+    return request(app)
+      .get("/api/users/monkey")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe('User not found')
       });
   });
 });
