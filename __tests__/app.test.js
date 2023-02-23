@@ -355,6 +355,38 @@ describe("Articles", () => {
         });
     });
   });
+  
+  describe("DELETE comment", () => {
+    it("204 response status code and deleted comment by comment_id", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(() => {
+          return db
+            .query(`SELECT * FROM comments WHERE comment_id = 1`)
+            .then((results) => {
+              expect(results.rows).toHaveLength(0);
+            });
+        });
+    });
+    //error tests
+    it("404 response status code when comment_id non-existent", () => {
+      return request(app)
+        .delete("/api/comments/999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Comment not found");
+        });
+    });
+    it("400 response status code when comment_id not valid", () => {
+      return request(app)
+        .delete("/api/comments/banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+  });
 
   describe("All endpoints", () => {
     it("GET 200: all endpoints on /api", () => {
@@ -364,8 +396,7 @@ describe("Articles", () => {
         .then(({ body }) => {
           const endpoints = body.endpoints
           expect(endpoints).toEqual(endpointsJson)
-        });
-    });
+          });
   });
 });
 
