@@ -6,6 +6,7 @@ const {
   updateArticlesVotesInDB,
   deleteCommentByIdInDB,
   updateCommentbyCommentId,
+  postArticleToDB,
 } = require("../models/articlesModel");
 
 exports.fetchArticles = (req, res, next) => {
@@ -94,6 +95,18 @@ exports.updateCommentbyCommentId = (req, res, next) => {
   updateCommentbyCommentId(comment_id, updatedVote)
     .then((updated) => {
       res.status(200).send({ updated });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postAnArticle = (req, res, next) => {
+  const newArticle = req.body;
+
+  postArticleToDB(newArticle)
+    .then((posted) => {
+      res.status(201).send({ posted });
     })
     .catch((err) => {
       next(err);

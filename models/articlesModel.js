@@ -122,3 +122,24 @@ exports.updateCommentbyCommentId = (comment_id, updatedVote) => {
       } else return result.rows[0];
     });
 };
+
+exports.postArticleToDB = (newArticle) => {
+  const {
+    title,
+    topic,
+    author,
+    body,
+    article_img_url = "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+  } = newArticle;
+
+  const queryString = `
+  INSERT INTO articles (title, topic, author, body, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *
+  `
+  return db.query(queryString, [title, topic, author, body, article_img_url])
+  .then(result => {
+    if (!result.rows) {
+      return Promise.reject({status: 404, message: 'Not found'})
+    }
+    else return {...result.rows[0], comment_count: 0}
+  })
+}

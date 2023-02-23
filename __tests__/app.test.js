@@ -65,6 +65,54 @@ describe("Articles", () => {
     });
   });
 
+  describe("POST article", () => {
+    const articleToPublish = {
+      title: "Superintelligence",
+      topic: "cats",
+      author: "butter_bridge",
+      body: "I find this existence challenging",
+    };
+    it("201 with posted article", () => {
+      return request(app)
+        .post("/api/articles")
+        .send(articleToPublish)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.posted).toMatchObject({
+            ...articleToPublish,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            votes: 0,
+            created_at: expect.any(String),
+            comment_count: 0,
+          });
+        });
+    });
+    it("400 reponse when req body has missing keys", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "Superintelligence",
+          topic: "cats",
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe('Invalid request')
+        });
+    });
+    it("400 reponse when article posted with invalid username", () => {
+      const invalidUser = {...articleToPublish}
+      invalidUser.author = 'someone_else'
+      return request(app)
+        .post("/api/articles")
+        .send({invalidUser})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request");
+        });
+    });
+  });
+
   describe("/api/articles/:article_id", () => {
     it("GET 200: responds with specific article with given id", () => {
       return request(app)
@@ -418,7 +466,7 @@ describe("Articles", () => {
         .send({ inc_votes: 2 })
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe('Comment not found')
+          expect(body.message).toBe("Comment not found");
         });
     });
     it("400 response if comment id not valid", () => {
