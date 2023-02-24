@@ -39,6 +39,57 @@ describe("Articles", () => {
     });
   });
 
+  describe("POST topics", () => {
+    const topicToPublish = {
+      slug: 'new_topic',
+      description: 'here here'
+    };
+    it("201 with posted topic", () => {
+      return request(app)
+        .post("/api/topics")
+        .send(topicToPublish)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.posted).toEqual({
+            slug: "new_topic",
+            description: "here here",
+          });
+        });
+    });
+    it("400 reponse when req body has missing keys", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request");
+        });
+    });
+    it("400 reponse when req body has wrong keys", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slugger: "new_topic",
+          diss: "here here",
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request");
+        });
+    });
+    it("400 reponse when req body has no slug", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          description: "here here",
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid request");
+        });
+    });
+  });
+
   describe("/api/articles", () => {
     it("GET 200: responds with all articles", () => {
       return request(app)
@@ -485,7 +536,7 @@ describe("Articles", () => {
           expect(body.totalCount).toBe(11)
         });
     });
-    it.only("GET 200: returns 5 articles, query of limit and checking total count as well", () => {
+    it("GET 200: returns 5 articles, query of limit and checking total count as well", () => {
       return request(app)
         .get("/api/articles?limit=5")
         .expect(200)
@@ -530,7 +581,7 @@ describe("Articles", () => {
           expect(body.message).toBe("Bad request");
         });
     });
-    it.only("GET 400: if invalid p ", () => {
+    it("GET 400: if invalid p ", () => {
       return request(app)
         .get("/api/articles?p=banana")
         .expect(400)
