@@ -10,16 +10,14 @@ const {
 } = require("../models/articlesModel");
 
 exports.fetchArticles = (req, res, next) => {
-  const { topic } = req.query;
+  const { topic, limit = 10, p = 1 } = req.query;
   const sortBy = req.query.sort_by || "created_at";
   const order = req.query.order || "desc";
 
-  /* 
-  topic is valid but no articles
-  */
-  fetchArticlesFromDB(topic, sortBy, order)
-    .then((articles) => {
-      res.status(200).send({ articles });
+  fetchArticlesFromDB(topic, sortBy, order, limit, p)
+    .then((result) => {
+      const [articles, totalCount] = result
+      res.status(200).send({ articles, totalCount });
     })
     .catch((err) => {
       next(err);

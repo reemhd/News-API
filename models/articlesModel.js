@@ -7,8 +7,11 @@ function topicExists() {
   });
 }
 
-exports.fetchArticlesFromDB = async (topic, sortBy, order) => {
+exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
+  const parseP = parseInt(p)
+  const offset = (p - 1) * limit;
   const queries = [];
+  const countQueries = []
   const validTopics = await topicExists();
   const validSorting = [
     "author",
@@ -20,9 +23,15 @@ exports.fetchArticlesFromDB = async (topic, sortBy, order) => {
   ];
   const validOrder = ["asc", "desc"];
 
-  if (!validSorting.includes(sortBy) || !validOrder.includes(order)) {
+  if (!validSorting.includes(sortBy) || !validOrder.includes(order) || isNaN(parseP)) {
     return Promise.reject({ status: 400, message: "Bad request" });
   }
+
+  let countQueryString = `SELECT COUNT(*) FROM articles `
+   if (topic) {
+     countQueryString += `WHERE articles.topic = $1`;
+     countQueries.push(topic);
+   }
 
   let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
@@ -34,12 +43,29 @@ exports.fetchArticlesFromDB = async (topic, sortBy, order) => {
     queryString += `WHERE articles.topic = $1`;
     queries.push(topic);
   }
+
   queryString += ` GROUP BY articles.article_id ORDER BY ${sortBy} ${order}`;
+
+  if (limit) {
+    queryString += ` LIMIT $${queries.length + 1}`
+    queries.push(limit)
+  }
+
+  if (offset) {
+    queryString += ` OFFSET $${queries.length + 1}`
+    queries.push(offset)
+  }
+
+  const countResult = await db.query(countQueryString, countQueries);
+  const totalCount = parseInt(countResult.rows[0].count)
 
   return db.query(queryString, queries).then((results) => {
     if (results.rowCount === 0 && !validTopics.includes(topic)) {
       return Promise.reject({ status: 404, message: "Article not found" });
-    } else return results.rows;
+    } else {
+      const articles = results.rows;
+      return [articles, totalCount];
+    }
   });
 };
 
@@ -137,9 +163,6 @@ exports.postArticleToDB = (newArticle) => {
   `
   return db.query(queryString, [title, topic, author, body, article_img_url])
   .then(result => {
-    if (!result.rows) {
-      return Promise.reject({status: 404, message: 'Not found'})
-    }
-    else return {...result.rows[0], comment_count: 0}
+    return {...result.rows[0], comment_count: 0}
   })
 }

@@ -4,6 +4,7 @@ const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
 const db = require("../db/connection");
 const endpointsJson = require("../endpoints.json");
+const { totalCount } = require("../db/connection");
 
 beforeEach(() => seed(testData));
 
@@ -63,6 +64,14 @@ describe("Articles", () => {
           });
         });
     });
+    it("GET 200 and response of only 10 articles, limit default", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toHaveLength(10)
+        });
+    });
   });
 
   describe("POST article", () => {
@@ -97,15 +106,15 @@ describe("Articles", () => {
         })
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe('Invalid request')
+          expect(body.message).toBe("Invalid request");
         });
     });
     it("400 reponse when article posted with invalid username", () => {
-      const invalidUser = {...articleToPublish}
-      invalidUser.author = 'someone_else'
+      const invalidUser = { ...articleToPublish };
+      invalidUser.author = "someone_else";
       return request(app)
         .post("/api/articles")
-        .send({invalidUser})
+        .send({ invalidUser })
         .expect(400)
         .then(({ body }) => {
           expect(body.message).toBe("Invalid request");
@@ -323,23 +332,137 @@ describe("Articles", () => {
   });
 
   describe("Get articles by queries", () => {
-    it("GET 200: returns articles filtered by topic value", () => {
+    const first10Articles = [
+      {
+        author: "icellusedkars",
+        title: "Eight pug gifs that remind me of mitch",
+        article_id: 3,
+        topic: "mitch",
+        created_at: "2020-11-03T09:12:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "2",
+      },
+      {
+        author: "icellusedkars",
+        title: "A",
+        article_id: 6,
+        topic: "mitch",
+        created_at: "2020-10-18T01:00:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "1",
+      },
+      {
+        author: "icellusedkars",
+        title: "Sony Vaio; or, The Laptop",
+        article_id: 2,
+        topic: "mitch",
+        created_at: "2020-10-16T05:03:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "0",
+      },
+      {
+        author: "butter_bridge",
+        title: "Moustache",
+        article_id: 12,
+        topic: "mitch",
+        created_at: "2020-10-11T11:24:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "0",
+      },
+      {
+        author: "rogersop",
+        title: "UNCOVERED: catspiracy to bring down democracy",
+        article_id: 5,
+        topic: "cats",
+        created_at: "2020-08-03T13:14:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "2",
+      },
+      {
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        article_id: 1,
+        topic: "mitch",
+        created_at: "2020-07-09T20:11:00.000Z",
+        votes: 100,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "11",
+      },
+      {
+        author: "butter_bridge",
+        title: "They're not exactly dogs, are they?",
+        article_id: 9,
+        topic: "mitch",
+        created_at: "2020-06-06T09:10:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "2",
+      },
+      {
+        author: "rogersop",
+        title: "Seven inspirational thought leaders from Manchester UK",
+        article_id: 10,
+        topic: "mitch",
+        created_at: "2020-05-14T04:15:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "0",
+      },
+      {
+        author: "rogersop",
+        title: "Student SUES Mitch!",
+        article_id: 4,
+        topic: "mitch",
+        created_at: "2020-05-06T01:14:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "0",
+      },
+      {
+        author: "icellusedkars",
+        title: "Does Mitch predate civilisation?",
+        article_id: 8,
+        topic: "mitch",
+        created_at: "2020-04-17T01:08:00.000Z",
+        votes: 0,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        comment_count: "0",
+      },
+    ];
+    it("GET 200: returns articles filtered by topic value and checking total count as well", () => {
       return request(app)
         .get("/api/articles?topic=cats")
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).toHaveLength(1);
+          expect(body.totalCount).toBe(1)
         });
     });
-    it("GET 200: returns articles filtered by topic value", () => {
+    it("GET 200: returns articles filtered by topic value and checking total count as well", () => {
       return request(app)
-        .get("/api/articles?topic=mitch")
+        .get("/api/articles?topic=paper")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toHaveLength(11);
+          expect(body.articles).toHaveLength(0)
+          expect(body.totalCount).toBe(0);
         });
     });
-    // sorting by author, title, topic, comment count, votes, created_at
+    // sorting by author, title, topic, comment count, votes, created_at, limit
     it("GET 200: returns articles sorted by valid sorting options: author ASC", () => {
       return request(app)
         .get("/api/articles?sort_by=author&order=asc")
@@ -349,7 +472,7 @@ describe("Articles", () => {
           expect(articles).toBeSortedBy("author", { ascending: true });
         });
     });
-    it("GET 200: returns articles sorted by valid sorting options: Mitch comment_count desc", () => {
+    it("GET 200: returns articles sorted by valid sorting options: Mitch comment_count desc and checking total count as well", () => {
       return request(app)
         .get("/api/articles?topic=mitch&sort_by=comment_count")
         .expect(200)
@@ -359,6 +482,35 @@ describe("Articles", () => {
             coerce: true,
             descending: true,
           });
+          expect(body.totalCount).toBe(11)
+        });
+    });
+    it.only("GET 200: returns 5 articles, query of limit and checking total count as well", () => {
+      return request(app)
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toHaveLength(5);
+          expect(body.totalCount).toBe(12)
+        });
+    });
+    it("GET 200: returns 5 articles from page 2 only", () => {
+      return request(app)
+        .get("/api/articles?limit=5&p=2")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toHaveLength(5)
+        });
+    });
+    it("GET 200: returns no articles from page 2 for cats topic", () => {
+      return request(app)
+        .get("/api/articles?topic=cats&p=2")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toHaveLength(0);
         });
     });
     it("GET 200: valid topic (paper) but no articles", () => {
@@ -368,6 +520,22 @@ describe("Articles", () => {
         .then(({ body }) => {
           const articles = body.articles;
           expect(articles).toHaveLength(0);
+        });
+    });
+    it("GET 400: if invalid limit ", () => {
+      return request(app)
+        .get("/api/articles?limit=banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+    it.only("GET 400: if invalid p ", () => {
+      return request(app)
+        .get("/api/articles?p=banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
         });
     });
     it("GET 400: if invalid sort_by ", () => {
