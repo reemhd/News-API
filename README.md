@@ -1,8 +1,8 @@
 # News API
 
-## Information
+## About The Project
 
-This News API provides a REST API that enables users to search for and retrieve information on topics, articles, users, and comments.
+This News API provides a REST API that enables users to search for and retrieve information on topics, articles, users, and comments from a database.
 
 It is hosted on Render and can be viewed here: [NEWS API](https://backend-project-news-api.onrender.com/api/) 
 
@@ -15,16 +15,19 @@ It is hosted on Render and can be viewed here: [NEWS API](https://backend-projec
 
 1. Clone this repository
 ```
-git clone <repo url>
+git clone https://github.com/reemhd/News-API.git
 ```
 
 2. Then, `cd` into the API directory 
 
 3. Install the dependencies:
 ```
+npm install;
 npm install pg;
 npm install dotenv;
 npm install express;
+npm install jest;
+npm install supertest;
 ```
 
 4. To connect the two databases, you need to create two files that allow access to environment variables: ".env.test" and ".env.development". These files should contain the following lines:
@@ -36,6 +39,7 @@ npm install express;
 ```
 npm run setup-dbs;
 npm run seed;
+npm run seed-prod
 ```
 
 6. To run tests you will need development dependencies installed:
