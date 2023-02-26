@@ -22,10 +22,10 @@ git clone https://github.com/reemhd/News-API.git
 
 3. Install the dependencies:
 ```
-npm install;
-npm install pg;
-npm install dotenv;
-npm install express;
+npm install
+npm install pg
+npm install dotenv
+npm install express
 ```
 
 4. To connect the two databases, you need to create two files that allow access to environment variables: ".env.test" and ".env.development". These files should contain the following lines:
@@ -35,8 +35,8 @@ npm install express;
 
 5. Seed Databases:
 ```
-npm run setup-dbs;
-npm run seed;
+npm run setup-dbs
+npm run seed
 npm run seed-prod
 ```
 
