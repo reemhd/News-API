@@ -134,6 +134,6 @@ Returns specific user
 
 ## Hosting
 
-Database was set up on [ElephantSQL](https://www.elephantsql.com).
+Database was set up on [ElephantSQL](https://www.elephantsql.com)
 
-And hosted on [Render](https://render.com).
+And hosted on [Render](https://render.com)
