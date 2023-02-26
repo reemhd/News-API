@@ -328,6 +328,38 @@ describe("Articles", () => {
           expect(commentsArray).toEqual(expected);
         });
     });
+    it("GET 200 with limit query", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toHaveLength(5);
+        });
+    });
+    it("GET 200 with p query", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=2")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toHaveLength(1);
+        });
+    });
+    it("GET 400 with p query with string", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
+    it("GET 400 with limit query with string", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Bad request");
+        });
+    });
     it("GET 200: when id is in database but no comments for that id", () => {
       return request(app)
         .get("/api/articles/4/comments")

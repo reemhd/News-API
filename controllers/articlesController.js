@@ -34,7 +34,8 @@ exports.fetchArticlebyId = (req, res, next) => {
 
 exports.fetchCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
-  const commentPromise = fetchCommentsByIdFromDB(article_id);
+  const { limit = 10, p = 1 } = req.query;
+  const commentPromise = fetchCommentsByIdFromDB(article_id, limit, p);
   const articleByIdPromise = fetchArticlebyIdFromDB(article_id);
   Promise.all([commentPromise, articleByIdPromise])
     .then(([comments]) => {

@@ -74,6 +74,7 @@ exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
 };
 
 exports.fetchArticlebyIdFromDB = (id) => {
+
   const queryString = `
     SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
     FROM articles
@@ -81,6 +82,7 @@ exports.fetchArticlebyIdFromDB = (id) => {
     WHERE articles.article_id = $1
     GROUP BY articles.article_id
     `;
+
   return db.query(queryString, [id]).then((results) => {
     if (results.rows.length === 0) {
       return Promise.reject({ status: 404, message: "Article not found" });
@@ -88,14 +90,33 @@ exports.fetchArticlebyIdFromDB = (id) => {
   });
 };
 
-exports.fetchCommentsByIdFromDB = (id) => {
-  const queryString = `
+exports.fetchCommentsByIdFromDB = (id, limit, p) => {
+  const queries = [id];
+  const parseP = parseInt(p);
+  const offset = (p - 1) * limit;
+  
+  if (isNaN(parseP)) {
+    return Promise.reject({ status: 400, message: "Bad request" });
+  }
+
+  let queryString = `
   SELECT comment_id, votes, created_at, author, body, article_id
   FROM comments
   WHERE article_id = $1
-  ORDER BY created_at DESC;
+  ORDER BY created_at DESC
   `;
-  return db.query(queryString, [id]).then((results) => {
+
+  if (limit) {
+    queryString += ` LIMIT $${queries.length + 1}`;
+    queries.push(limit);
+  }
+
+  if (offset) {
+    queryString += ` OFFSET $${queries.length + 1}`;
+    queries.push(offset);
+  }
+
+  return db.query(queryString, queries).then((results) => {
     return results.rows;
   });
 };
