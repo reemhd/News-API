@@ -6,7 +6,9 @@
 -- GROUP BY articles.article_id
 -- ORDER BY articles.created_at DESC;
 
-SELECT comment_id, votes, created_at, author, body, article_id
-FROM comments
-WHERE article_id = 1
-ORDER BY created_at DESC;
+-- SELECT comment_id, votes, created_at, author, body, article_id
+-- FROM comments
+-- WHERE article_id = 1
+-- ORDER BY created_at DESC;
+
+DELETE FROM articles WHERE article_id = 1 RETURNING *;

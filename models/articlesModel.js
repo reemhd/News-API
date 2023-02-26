@@ -8,10 +8,10 @@ function topicExists() {
 }
 
 exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
-  const parseP = parseInt(p)
+  const parseP = parseInt(p);
   const offset = (p - 1) * limit;
   const queries = [];
-  const countQueries = []
+  const countQueries = [];
   const validTopics = await topicExists();
   const validSorting = [
     "author",
@@ -23,15 +23,19 @@ exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
   ];
   const validOrder = ["asc", "desc"];
 
-  if (!validSorting.includes(sortBy) || !validOrder.includes(order) || isNaN(parseP)) {
+  if (
+    !validSorting.includes(sortBy) ||
+    !validOrder.includes(order) ||
+    isNaN(parseP)
+  ) {
     return Promise.reject({ status: 400, message: "Bad request" });
   }
 
-  let countQueryString = `SELECT COUNT(*) FROM articles `
-   if (topic) {
-     countQueryString += `WHERE articles.topic = $1`;
-     countQueries.push(topic);
-   }
+  let countQueryString = `SELECT COUNT(*) FROM articles `;
+  if (topic) {
+    countQueryString += `WHERE articles.topic = $1`;
+    countQueries.push(topic);
+  }
 
   let queryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
@@ -47,17 +51,17 @@ exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
   queryString += ` GROUP BY articles.article_id ORDER BY ${sortBy} ${order}`;
 
   if (limit) {
-    queryString += ` LIMIT $${queries.length + 1}`
-    queries.push(limit)
+    queryString += ` LIMIT $${queries.length + 1}`;
+    queries.push(limit);
   }
 
   if (offset) {
-    queryString += ` OFFSET $${queries.length + 1}`
-    queries.push(offset)
+    queryString += ` OFFSET $${queries.length + 1}`;
+    queries.push(offset);
   }
 
   const countResult = await db.query(countQueryString, countQueries);
-  const totalCount = parseInt(countResult.rows[0].count)
+  const totalCount = parseInt(countResult.rows[0].count);
 
   return db.query(queryString, queries).then((results) => {
     if (results.rowCount === 0 && !validTopics.includes(topic)) {
@@ -160,9 +164,33 @@ exports.postArticleToDB = (newArticle) => {
 
   const queryString = `
   INSERT INTO articles (title, topic, author, body, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *
-  `
-  return db.query(queryString, [title, topic, author, body, article_img_url])
-  .then(result => {
-    return {...result.rows[0], comment_count: 0}
-  })
-}
+  `;
+  return db
+    .query(queryString, [title, topic, author, body, article_img_url])
+    .then((result) => {
+      return { ...result.rows[0], comment_count: 0 };
+    });
+};
+
+exports.deleteArticleByIdInDB = (article_id) => {
+  //additional query due to foreign key constraint
+  const deleteCommentsQuery = `
+  DELETE FROM comments
+  WHERE article_id = $1
+  `;
+  const deleteArticleQuery = `
+  DELETE FROM articles 
+  WHERE article_id = $1 
+  RETURNING *
+  `;
+
+  return db.query(deleteCommentsQuery, [article_id])
+  .then(() => {
+    return db.query(deleteArticleQuery, [article_id])
+    .then((result) => {
+      if (result.rowCount === 0) {
+        return Promise.reject({ status: 404, message: "Article not found" });
+      } else return;
+    });
+  });
+};

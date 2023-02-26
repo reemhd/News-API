@@ -41,8 +41,8 @@ describe("Articles", () => {
 
   describe("POST topics", () => {
     const topicToPublish = {
-      slug: 'new_topic',
-      description: 'here here'
+      slug: "new_topic",
+      description: "here here",
     };
     it("201 with posted topic", () => {
       return request(app)
@@ -120,7 +120,7 @@ describe("Articles", () => {
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toHaveLength(10)
+          expect(body.articles).toHaveLength(10);
         });
     });
   });
@@ -174,47 +174,132 @@ describe("Articles", () => {
   });
 
   describe("/api/articles/:article_id", () => {
-    it("GET 200: responds with specific article with given id", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          const articleObj = body.article;
-          const expectedArticle = {
-            author: "butter_bridge",
-            title: "Living in the shadow of a great man",
-            article_id: 1,
-            topic: "mitch",
-            created_at: "2020-07-09T20:11:00.000Z",
-            votes: 100,
-            article_img_url:
-              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            comment_count: "11",
-          };
-          expect(articleObj).toEqual(expect.objectContaining(expectedArticle));
-        });
+    describe("GET", () => {
+      it("GET 200: responds with specific article with given id", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const articleObj = body.article;
+            const expectedArticle = {
+              author: "butter_bridge",
+              title: "Living in the shadow of a great man",
+              article_id: 1,
+              topic: "mitch",
+              created_at: "2020-07-09T20:11:00.000Z",
+              votes: 100,
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              comment_count: "11",
+            };
+            expect(articleObj).toEqual(
+              expect.objectContaining(expectedArticle)
+            );
+          });
+      });
+      it("GET 404: when id not in database", () => {
+        return request(app)
+          .get("/api/articles/99999")
+          .expect(404)
+          .then(({ body }) => {
+            const error = body.message;
+            expect(error).toBe("Article not found");
+          });
+      });
+      it("GET 400: when id not number", () => {
+        return request(app)
+          .get("/api/articles/banana")
+          .expect(400)
+          .then(({ body }) => {
+            const error = body.message;
+            expect(error).toBe("Bad request");
+          });
+      });
     });
-    it("GET 404: when id not in database", () => {
+
+    describe("PATCH", () => {
+      it("200 response with an increase of votes in article by id", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 2 })
+          .expect(200)
+          .then(({ body }) => {
+            const updatedArticle = body.updated;
+            expect(updatedArticle.votes).toBe(102);
+          });
+      });
+      it("200 response with a decrease of votes in article by id", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: -2 })
+          .expect(200)
+          .then(({ body }) => {
+            const updatedArticle = body.updated;
+            expect(updatedArticle.votes).toBe(98);
+          });
+      });
+      it("404 status code if article not found", () => {
+        return request(app)
+          .patch("/api/articles/999")
+          .send({ inc_votes: -2 })
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.message).toBe("Article not found");
+          });
+      });
+      it("400 status code if article id not a number", () => {
+        return request(app)
+          .patch("/api/articles/banana")
+          .send({ inc_votes: 22 })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe("Bad request");
+          });
+      });
+      it("400 status code if invalid object sent", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({})
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe("Invalid request");
+          });
+      });
+    });
+
+    describe("DELETE", () => {
+      it("204 status response and deletion of article by article_id", () => {
+        return request(app)
+          .delete("/api/articles/1")
+          .expect(204)
+          .then(() => {
+            return db
+              .query("SELECT * FROM articles WHERE article_id = 1")
+              .then((result) => {
+                expect(result.rows).toHaveLength(0);
+              });
+          });
+      });
+    });
+    it("404 response status code when comment_id non-existent", () => {
       return request(app)
-        .get("/api/articles/99999")
+        .delete("/api/articles/999")
         .expect(404)
         .then(({ body }) => {
-          const error = body.message;
-          expect(error).toBe("Article not found");
+          expect(body.message).toBe("Article not found");
         });
     });
-    it("GET 400: when id not number", () => {
+    it("400 response status code when comment_id not valid", () => {
       return request(app)
-        .get("/api/articles/banana")
+        .delete("/api/articles/banana")
         .expect(400)
         .then(({ body }) => {
-          const error = body.message;
-          expect(error).toBe("Bad request");
+          expect(body.message).toBe("Bad request");
         });
     });
   });
 
-  describe("/api/articles/3/comments", () => {
+  describe("/api/articles/:article_id/comments", () => {
     it("GET 200: responds with of comments for a given article_id", () => {
       return request(app)
         .get("/api/articles/3/comments")
@@ -330,178 +415,14 @@ describe("Articles", () => {
     });
   });
 
-  describe("PATCH method for articles", () => {
-    describe("/api/articles/:article_id", () => {
-      it("200 response with an increase of votes in article by id", () => {
-        return request(app)
-          .patch("/api/articles/1")
-          .send({ inc_votes: 2 })
-          .expect(200)
-          .then(({ body }) => {
-            const updatedArticle = body.updated;
-            expect(updatedArticle.votes).toBe(102);
-          });
-      });
-      it("200 response with a decrease of votes in article by id", () => {
-        return request(app)
-          .patch("/api/articles/1")
-          .send({ inc_votes: -2 })
-          .expect(200)
-          .then(({ body }) => {
-            const updatedArticle = body.updated;
-            expect(updatedArticle.votes).toBe(98);
-          });
-      });
-      it("404 status code if article not found", () => {
-        return request(app)
-          .patch("/api/articles/999")
-          .send({ inc_votes: -2 })
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.message).toBe("Article not found");
-          });
-      });
-      it("400 status code if article id not a number", () => {
-        return request(app)
-          .patch("/api/articles/banana")
-          .send({ inc_votes: 22 })
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.message).toBe("Bad request");
-          });
-      });
-      it("400 status code if invalid object sent", () => {
-        return request(app)
-          .patch("/api/articles/1")
-          .send({})
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.message).toBe("Invalid request");
-          });
-      });
-    });
-  });
-
   describe("Get articles by queries", () => {
-    const first10Articles = [
-      {
-        author: "icellusedkars",
-        title: "Eight pug gifs that remind me of mitch",
-        article_id: 3,
-        topic: "mitch",
-        created_at: "2020-11-03T09:12:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "2",
-      },
-      {
-        author: "icellusedkars",
-        title: "A",
-        article_id: 6,
-        topic: "mitch",
-        created_at: "2020-10-18T01:00:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "1",
-      },
-      {
-        author: "icellusedkars",
-        title: "Sony Vaio; or, The Laptop",
-        article_id: 2,
-        topic: "mitch",
-        created_at: "2020-10-16T05:03:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "0",
-      },
-      {
-        author: "butter_bridge",
-        title: "Moustache",
-        article_id: 12,
-        topic: "mitch",
-        created_at: "2020-10-11T11:24:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "0",
-      },
-      {
-        author: "rogersop",
-        title: "UNCOVERED: catspiracy to bring down democracy",
-        article_id: 5,
-        topic: "cats",
-        created_at: "2020-08-03T13:14:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "2",
-      },
-      {
-        author: "butter_bridge",
-        title: "Living in the shadow of a great man",
-        article_id: 1,
-        topic: "mitch",
-        created_at: "2020-07-09T20:11:00.000Z",
-        votes: 100,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "11",
-      },
-      {
-        author: "butter_bridge",
-        title: "They're not exactly dogs, are they?",
-        article_id: 9,
-        topic: "mitch",
-        created_at: "2020-06-06T09:10:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "2",
-      },
-      {
-        author: "rogersop",
-        title: "Seven inspirational thought leaders from Manchester UK",
-        article_id: 10,
-        topic: "mitch",
-        created_at: "2020-05-14T04:15:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "0",
-      },
-      {
-        author: "rogersop",
-        title: "Student SUES Mitch!",
-        article_id: 4,
-        topic: "mitch",
-        created_at: "2020-05-06T01:14:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "0",
-      },
-      {
-        author: "icellusedkars",
-        title: "Does Mitch predate civilisation?",
-        article_id: 8,
-        topic: "mitch",
-        created_at: "2020-04-17T01:08:00.000Z",
-        votes: 0,
-        article_img_url:
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        comment_count: "0",
-      },
-    ];
     it("GET 200: returns articles filtered by topic value and checking total count as well", () => {
       return request(app)
         .get("/api/articles?topic=cats")
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).toHaveLength(1);
-          expect(body.totalCount).toBe(1)
+          expect(body.totalCount).toBe(1);
         });
     });
     it("GET 200: returns articles filtered by topic value and checking total count as well", () => {
@@ -509,7 +430,7 @@ describe("Articles", () => {
         .get("/api/articles?topic=paper")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toHaveLength(0)
+          expect(body.articles).toHaveLength(0);
           expect(body.totalCount).toBe(0);
         });
     });
@@ -533,7 +454,7 @@ describe("Articles", () => {
             coerce: true,
             descending: true,
           });
-          expect(body.totalCount).toBe(11)
+          expect(body.totalCount).toBe(11);
         });
     });
     it("GET 200: returns 5 articles, query of limit and checking total count as well", () => {
@@ -543,7 +464,7 @@ describe("Articles", () => {
         .then(({ body }) => {
           const articles = body.articles;
           expect(articles).toHaveLength(5);
-          expect(body.totalCount).toBe(12)
+          expect(body.totalCount).toBe(12);
         });
     });
     it("GET 200: returns 5 articles from page 2 only", () => {
@@ -552,7 +473,7 @@ describe("Articles", () => {
         .expect(200)
         .then(({ body }) => {
           const articles = body.articles;
-          expect(articles).toHaveLength(5)
+          expect(articles).toHaveLength(5);
         });
     });
     it("GET 200: returns no articles from page 2 for cats topic", () => {

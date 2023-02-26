@@ -7,6 +7,7 @@ const {
   deleteCommentByIdInDB,
   updateCommentbyCommentId,
   postArticleToDB,
+  deleteArticleByIdInDB,
 } = require("../models/articlesModel");
 
 exports.fetchArticles = (req, res, next) => {
@@ -16,12 +17,10 @@ exports.fetchArticles = (req, res, next) => {
 
   fetchArticlesFromDB(topic, sortBy, order, limit, p)
     .then((result) => {
-      const [articles, totalCount] = result
+      const [articles, totalCount] = result;
       res.status(200).send({ articles, totalCount });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.fetchArticlebyId = (req, res, next) => {
@@ -30,9 +29,7 @@ exports.fetchArticlebyId = (req, res, next) => {
     .then((article) => {
       res.status(200).send({ article });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.fetchCommentsByArticleId = (req, res, next) => {
@@ -43,9 +40,7 @@ exports.fetchCommentsByArticleId = (req, res, next) => {
     .then(([comments]) => {
       res.status(200).send({ comments });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.postComment = (req, res, next) => {
@@ -56,9 +51,7 @@ exports.postComment = (req, res, next) => {
     .then((comment) => {
       res.status(201).send({ comment });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.updateArticlesVotes = (req, res, next) => {
@@ -69,21 +62,17 @@ exports.updateArticlesVotes = (req, res, next) => {
     .then((updated) => {
       res.status(200).send({ updated });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;
 
   deleteCommentByIdInDB(comment_id)
-    .then((deleted) => {
+    .then(() => {
       res.status(204).send();
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.updateCommentbyCommentId = (req, res, next) => {
@@ -94,9 +83,7 @@ exports.updateCommentbyCommentId = (req, res, next) => {
     .then((updated) => {
       res.status(200).send({ updated });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.postAnArticle = (req, res, next) => {
@@ -106,7 +93,13 @@ exports.postAnArticle = (req, res, next) => {
     .then((posted) => {
       res.status(201).send({ posted });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
+};
+
+exports.deleteArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+
+  deleteArticleByIdInDB(article_id)
+    .then(() => res.status(204).send())
+    .catch((err) => next(err));
 };
