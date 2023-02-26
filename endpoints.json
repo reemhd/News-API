@@ -35,6 +35,31 @@
     }
   },
 
+  "POST /api/articles": {
+    "description": "posts a new a new article",
+    "queries": [],
+    "body": {
+      "title": "Superintelligence",
+      "topic": "cats",
+      "author": "butter_bridge",
+      "body": "I find existence challenging"
+    },
+    "exampleResponse": {
+      "comments": [
+        {
+          "title": "Superintelligence",
+          "topic": "cats",
+          "author": "butter_bridge",
+          "body": "I find existence challenging",
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "votes": 0,
+          "created_at": 152769553342,
+          "comment_count": 0
+        }
+      ]
+    }
+  },
+
   "GET /api/articles/:article_id": {
     "description": "responds with an array of articles for given article_id",
     "queries": [],
@@ -55,7 +80,7 @@
   },
 
   "PATCH /api/articles/:article_id": {
-    "description": "patches the article votes based on article_id and increments or decrements based on newVotes value",
+    "description": "updates the article's votes based on article_id and increments or decrements based on newVotes value",
     "queries": [],
     "body": { "inc_votes": "newVote" },
     "exampleResponse": {
@@ -77,7 +102,7 @@
   "DELETE /api/articles/:article_id": {
     "description": "deletes article by article_id",
     "queries": [],
-    "exampleResponse": { "statusCode": 204 }
+    "exampleResponse": {}
   },
 
   "GET /api/articles/:article_id/comments": {
@@ -118,11 +143,11 @@
   "DELETE /api/comments/:comment_id": {
     "description": "deletes comment by comment_id",
     "queries": [],
-    "exampleResponse": { "statusCode": 204 }
+    "exampleResponse": {}
   },
 
   "PATCH /api/comments/:comment_id": {
-    "description": "patches comment votes of provided comment_id by either incrementing it or decrementing it",
+    "description": "updates comment votes of provided comment_id by either incrementing it or decrementing it",
     "queries": [],
     "body": { "inc_votes": "newVote" },
     "exampleResponse": {
