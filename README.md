@@ -26,8 +26,6 @@ npm install;
 npm install pg;
 npm install dotenv;
 npm install express;
-npm install jest;
-npm install supertest;
 ```
 
 4. To connect the two databases, you need to create two files that allow access to environment variables: ".env.test" and ".env.development". These files should contain the following lines:
