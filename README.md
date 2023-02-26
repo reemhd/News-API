@@ -2,9 +2,9 @@
 
 ## Information
 
-This News API uses REST API which allows users to search and retrieve topics, articles, users and comments.
+This News API provides a REST API that enables users to search for and retrieve information on topics, articles, users, and comments.
 
-The API is hosted on Render: [NEWS API](https://backend-project-news-api.onrender.com/api/) 
+It is hosted on Render and can be viewed here: [NEWS API](https://backend-project-news-api.onrender.com/api/) 
 
 ## Prerequisites
 
@@ -56,13 +56,18 @@ npm test
 ```http
 GET /api
 ```
-Serves all the available endpoints
+Responds with all the available endpoints
 
 
 ```http
 GET /api/topics
 ```
 Get all the topics
+
+```http
+POST /api/topics
+```
+Post topics
 
 
 ```http
@@ -74,14 +79,28 @@ Returns all the articles
 ```http
 GET /api/articles/:article_id
 ```
-Get an specific article
+Returns a specific article
+
+```http
+POST /api/articles/:article_id
+```
+Post a specific article
+
+```http
+PATCH /api/articles/:article_id
+```
+Update a specific article's votes
+
+```http
+DELETE /api/articles/:article_id
+```
+Deletes a specific article
 
 
 ```http
 GET /api/articles/:article_id/comments
 ```
-Get all the comments for a specific article
-
+Gets all the comments for the specific article
 
 ```http
 POST /api/articles/:article_id/comments
@@ -95,14 +114,24 @@ DELETE /api/comments/:comment_id
 ```
 Deletes a comment
 
+```http
+PATCH /api/comments/:comment_id
+```
+Updates a comment's votes
+
 
 ```http
 GET /api/users
 ```
 Returns all users
 
+```http
+GET /api/users/:username
+```
+Returns specific user
+
 ## Hosting
 
-Ensure you have set up your database on [ElephantSQL](https://www.elephantsql.com).
+Database was set up on [ElephantSQL](https://www.elephantsql.com).
 
-Then host your API using [Render](https://render.com).
+And hosted on [Render](https://render.com).
