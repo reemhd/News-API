@@ -1,11 +1,5 @@
 const db = require("../db/connection");
-
-function topicExists() {
-  return db.query(`SELECT slug FROM topics`).then((result) => {
-    const topics = result.rows.map((topic) => topic.slug);
-    return topics;
-  });
-}
+const { topicExists } = require("../util_functions/topicExists");
 
 exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
   const parseP = parseInt(p);
@@ -74,7 +68,6 @@ exports.fetchArticlesFromDB = async (topic, sortBy, order, limit, p) => {
 };
 
 exports.fetchArticlebyIdFromDB = (id) => {
-
   const queryString = `
     SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
     FROM articles
@@ -94,7 +87,7 @@ exports.fetchCommentsByIdFromDB = (id, limit, p) => {
   const queries = [id];
   const parseP = parseInt(p);
   const offset = (p - 1) * limit;
-  
+
   if (isNaN(parseP)) {
     return Promise.reject({ status: 400, message: "Bad request" });
   }
@@ -116,9 +109,8 @@ exports.fetchCommentsByIdFromDB = (id, limit, p) => {
     queries.push(offset);
   }
 
-  return db.query(queryString, queries).then((results) => {
-    return results.rows;
-  });
+  return db.query(queryString, queries)
+  .then((results) => results.rows);
 };
 
 exports.postCommentToDB = (article_id, comment) => {
@@ -132,9 +124,8 @@ exports.postCommentToDB = (article_id, comment) => {
   VALUES ($1, $2, $3)
   RETURNING *`;
 
-  return db.query(queryString, [body, username, article_id]).then((result) => {
-    return result.rows[0];
-  });
+  return db.query(queryString, [body, username, article_id])
+  .then((result) => result.rows[0]);
 };
 
 exports.updateArticlesVotesInDB = (article_id, updatedVote) => {
@@ -145,32 +136,6 @@ exports.updateArticlesVotesInDB = (article_id, updatedVote) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, message: "Article not found" });
       } else return rows[0];
-    });
-};
-
-exports.deleteCommentByIdInDB = (comment_id) => {
-  const queryString = `
-  DELETE FROM comments 
-  WHERE comment_id = $1 
-  RETURNING *
-  `;
-  return db.query(queryString, [comment_id]).then((result) => {
-    if (result.rowCount === 0) {
-      return Promise.reject({ status: 404, message: "Comment not found" });
-    } else return;
-  });
-};
-
-exports.updateCommentbyCommentId = (comment_id, updatedVote) => {
-  const queryString = `
-  UPDATE comments SET votes = votes + $2 WHERE comment_id = $1 RETURNING *;
-  `;
-  return db
-    .query(queryString, [comment_id, updatedVote.inc_votes])
-    .then((result) => {
-      if (result.rowCount === 0) {
-        return Promise.reject({ status: 404, message: "Comment not found" });
-      } else return result.rows[0];
     });
 };
 
@@ -205,10 +170,8 @@ exports.deleteArticleByIdInDB = (article_id) => {
   RETURNING *
   `;
 
-  return db.query(deleteCommentsQuery, [article_id])
-  .then(() => {
-    return db.query(deleteArticleQuery, [article_id])
-    .then((result) => {
+  return db.query(deleteCommentsQuery, [article_id]).then(() => {
+    return db.query(deleteArticleQuery, [article_id]).then((result) => {
       if (result.rowCount === 0) {
         return Promise.reject({ status: 404, message: "Article not found" });
       } else return;
