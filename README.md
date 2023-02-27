@@ -39,10 +39,10 @@ npm run seed-prod
 
 5. To run tests you will need development dependencies installed:
 ```
-npm install supertest -D;
-npm install jest -D;
-npm install jest-sorted -D;
-npm install pg-format -D;
+npm install supertest -D
+npm install jest -D
+npm install jest-sorted -D
+npm install pg-format -D
 ```
 
 6. To run tests:
