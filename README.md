@@ -4,7 +4,8 @@
 
 This News API provides a REST API that enables users to search for and retrieve information on topics, articles, users, and comments from a database.
 
-It is hosted on Render and can be viewed here: [NEWS API](https://backend-project-news-api.onrender.com/api/) 
+It is hosted on Render and can be viewed here: [NEWS API](https://backend-project-news-api.onrender.com/api/)
+Note: The API is hosted on a free-tier plan, which may result in longer initial load times as the server spins up
 
 ## Prerequisites
 
