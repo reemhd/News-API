@@ -48,7 +48,7 @@ jobs:
 
       - name: Run Tests in Container
         run: |
-          docker run --rm \
+          docker run --rm --network=service:postgres \
           -e DATABASE_HOST=postgres \
           -e DATABASE_PORT=5432 \
           -e DATABASE_USER=postgres \
