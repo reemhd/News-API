@@ -18,7 +18,7 @@ jobs:
         run: docker save news-api:latest -o news-api.tar
 
       - name: Upload Docker Image Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: news-api-image
           path: news-api.tar
