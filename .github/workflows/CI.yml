@@ -37,6 +37,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
@@ -49,7 +51,7 @@ jobs:
       - name: Run Tests in Container
         run: |
           docker run --rm --network=host \
-          -e DATABASE_HOST=postgres \
+          -e DATABASE_HOST=localhost \
           -e DATABASE_PORT=5432 \
           -e DATABASE_USER=postgres \
           -e DATABASE_PASSWORD=password \
