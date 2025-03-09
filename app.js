@@ -5,9 +5,11 @@ const {
   handle404NonExistentPath,
 } = require("./controllers/errorHandlers");
 
+process.on("SIGINT", () => process.exit());
+
 const express = require("express");
 
-const cors = require('cors');
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
