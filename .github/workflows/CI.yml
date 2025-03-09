@@ -56,5 +56,5 @@ jobs:
           -e DATABASE_USER=postgres \
           -e DATABASE_PASSWORD=password \
           news-api:latest \
-          sh -c "npm install --only=dev && npm test"
+          sh -c "npm install --only=dev && npm run seed-prod && npm test"
     
