@@ -33,7 +33,6 @@ jobs:
         env:
           POSTGRES_PASSWORD: password
           TZ: UTC
-          PGTZ: UTC
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -58,6 +57,7 @@ jobs:
           -e DATABASE_PORT=5432 \
           -e DATABASE_USER=postgres \
           -e DATABASE_PASSWORD=password \
+          -e TZ=UTC
           news-api:latest \
           sh -c "npm install --only=dev && npm test"
     
