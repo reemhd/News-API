@@ -57,7 +57,7 @@ jobs:
           -e DATABASE_PORT=5432 \
           -e DATABASE_USER=postgres \
           -e DATABASE_PASSWORD=password \
-          -e TZ=UTC
+          -e TZ=UTC \
           news-api:latest \
           sh -c "npm install --only=dev && npm test"
     
