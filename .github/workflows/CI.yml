@@ -27,6 +27,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: build
+    services:
+      postgres:
+        image: postgres:alpine
+        env:
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
@@ -45,8 +55,4 @@ jobs:
           -e DATABASE_PASSWORD=password \
           news-api:latest \
           sh -c "npm install --only=dev && npm test"
-    services:
-      postgres:
-        image: postgres:alpine
-        env:
-          POSTGRES_PASSWORD: password
+    
