@@ -1,0 +1,25 @@
+services:
+  news-api:
+    build:
+      context: .
+    env_file: ".env.development"
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PASSWORD: password
+    networks:
+      - appnet
+    ports:
+      - 9090:9090
+
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    networks:
+      - appnet
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: password
+
+networks:
+  appnet:
