@@ -19,6 +19,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs: build
     container:
       image: news-api:latest
       env: 
