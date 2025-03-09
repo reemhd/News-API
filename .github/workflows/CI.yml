@@ -51,6 +51,7 @@ jobs:
       - name: Run Tests in Container
         run: |
           docker run --rm --network=host \
+          -e NODE_ENV=test \
           -e DATABASE_HOST=localhost \
           -e DATABASE_PORT=5432 \
           -e DATABASE_USER=postgres \
