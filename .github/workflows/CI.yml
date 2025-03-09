@@ -1,0 +1,40 @@
+name: GitHub Actions Build Docker run Tests
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Build Docker
+      uses: docker/build-push-action@v6
+      with:
+        push: false
+        tags: news-api:latest
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: news-api:latest
+      env: 
+        DATABASE_HOST: postgres
+        DATABASE_PORT: "5432"
+        DATABASE_USER: postgres
+        DATABASE_PASSWORD: password
+    services:
+      postgres:
+        image: postgres:alpine
+        env:
+          POSTGRES_PASSWORD: password
+    steps:
+      - name: Seed Prod
+        run: npm run seed-prod
+      - name: Clean install dev dependencies
+        run: npm ci 
+      - name: Run Tests
+        run: npm test
+      
