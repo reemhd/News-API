@@ -8,35 +8,56 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    
-    - name: Build Docker
-      uses: docker/build-push-action@v6
-      with:
-        push: false
-        tags: news-api:latest
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t news-api:latest .
+
+      - name: Save Docker Image as Tar
+        run: docker save news-api:latest -o news-api.tar
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: news-api-image
+          path: news-api.tar
+
 
   test:
     runs-on: ubuntu-latest
     needs: build
-    container:
-      image: news-api:latest
-      env: 
-        DATABASE_HOST: postgres
-        DATABASE_PORT: "5432"
-        DATABASE_USER: postgres
-        DATABASE_PASSWORD: password
     services:
       postgres:
         image: postgres:alpine
         env:
           POSTGRES_PASSWORD: password
+          TZ: UTC
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
-      - name: Seed Prod
-        run: npm run seed-prod
-      - name: Clean install dev dependencies
-        run: npm ci 
-      - name: Run Tests
-        run: npm test
-      
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: news-api-image
+
+      - name: Load Docker Image
+        run: docker load -i news-api.tar
+
+      - name: Run Tests in Container
+        run: |
+          docker run --rm --network=host \
+          -e NODE_ENV=test \
+          -e DATABASE_HOST=localhost \
+          -e DATABASE_PORT=5432 \
+          -e DATABASE_USER=postgres \
+          -e DATABASE_PASSWORD=password \
+          -e TZ=UTC \
+          news-api:latest \
+          sh -c "npm install --only=dev && npm test"
+    

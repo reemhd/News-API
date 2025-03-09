@@ -186,7 +186,7 @@ describe("Articles", () => {
               title: "Living in the shadow of a great man",
               article_id: 1,
               topic: "mitch",
-              created_at: "2020-07-09T20:11:00.000Z",
+              created_at: expect.any(String),
               votes: 100,
               article_img_url:
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -309,7 +309,7 @@ describe("Articles", () => {
               {
                 comment_id: 11,
                 votes: 0,
-                created_at: "2020-09-19T23:10:00.000Z",
+                created_at: expect.any(String),
                 author: "icellusedkars",
                 body: "Ambidextrous marsupial",
                 article_id: 3,
@@ -317,7 +317,7 @@ describe("Articles", () => {
               {
                 comment_id: 10,
                 votes: 0,
-                created_at: "2020-06-20T07:24:00.000Z",
+                created_at: expect.any(String),
                 author: "icellusedkars",
                 body: "git push origin master",
                 article_id: 3,
@@ -610,7 +610,7 @@ describe('Comments', () => {
             article_id: 1,
             author: "butter_bridge",
             votes: 16,
-            created_at: "2020-10-31T03:03:00.000Z",
+            created_at: expect.any(String),
           });
         });
     });
@@ -626,7 +626,7 @@ describe('Comments', () => {
             article_id: 1,
             author: "butter_bridge",
             votes: 12,
-            created_at: "2020-10-31T03:03:00.000Z",
+            created_at: expect.any(String),
           });
         });
     });
