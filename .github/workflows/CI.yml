@@ -1,8 +1,9 @@
 name: GitHub Actions Build Docker run Tests
 on:
+  pull_request:
   push:
     branches:
-      - master
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
