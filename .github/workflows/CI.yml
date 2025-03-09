@@ -32,8 +32,9 @@ jobs:
         image: postgres:alpine
         env:
           POSTGRES_PASSWORD: password
-          TZ: UTC 
-          PGTZ: UTC 
+          TZ: UTC
+          PGTZ: UTC
+          POSTGRES_INITDB_ARGS: "--timezone=UTC"
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
